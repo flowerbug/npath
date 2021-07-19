@@ -8,16 +8,14 @@
 
   If you go back in versions to checkout npath-v0.0.0 you will see it is a somewhat edited version of ngfp which has been changed only to change the name and some module imports.
 
+  Version npath-v0.0.1 tests how low the minimum row and column sizes work and as it turns out the game still works at 0 rows and columns even if it doesn't do anything interesting.  A 1 row by 1 column game is playable but silly and some of the menus on the right are chopped off.  The minimum playable simple game with fully visible menus is 6 rows and 1 column.  This is only temporary as the menu and widget piles are coming out.
+
   The next versions will be aiming towards:
 
-    - removing the control menu and replacing those by keyboard commands.
-      - all the dialogs get coverted or changed.
+    Removing the control menu and widget piles and replacing those by keyboard commands - all the dialogs get coverted or changed.
 
-    - Removing the artwork and replacing it by colors so that nothing will be
-      based upon fixed sized images, which should allow us to get down to a
-      pixel sized cell in the grid if we want.
+    Removing the artwork and replacing it by colors so that nothing will be based upon fixed sized images, which should allow us to get down to a pixel sized cell in the grid if we want.
 
-    - The logic of the game is removed to turn it into a simple matching 
-      guessing game of colors.
+    The logic of the game is removed to turn it into a simple matching guessing game of colors.
 
-    - Reducing the number of batches to one and using groups instead.
+    Reducing the number of batches to one and using groups instead.
