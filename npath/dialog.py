@@ -945,7 +945,7 @@ def DoDialogControlAction (self, x, x_rec, y, y_rec, win_pos):
 
 #    print ("DoDialogControlAction ", x, x_rec, y, y_rec, win_pos)
 
-    menu_index = self.control_active_squares.index(win_pos)
+    menu_index = 0
 
     # simple menu selection
     if (menu_index == 0):

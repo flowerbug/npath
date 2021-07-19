@@ -12,7 +12,6 @@ import config as cfg
 from active import ActiveAreaLeftMouseClickAction, ActiveAreaRightMouseClickAction, ActiveAreaMouseMoveAction
 from board import ClearSquareMarkers, ClearAllMarkers, ToggleMarker, RestartGame, DrawBoard
 from dialog import ShowHelp
-from labels import UpdateLabels
 from marbles import CheckMarbleChangeDirection, StopMarble
 from my_init import MyInitStuff
 
@@ -249,12 +248,7 @@ class Window(pyglet.window.Window):
 
         DrawBoard (self)
 
-        UpdateLabels(self)
-
         self.fixed_batch.draw()
-        self.green_batch.draw()
-        self.control_batch.draw()
-        self.widget_batch.draw()
         self.fixed_board_batch.draw()
         self.variable_board_batch.draw()
         self.variable_guess_batch.draw()
@@ -265,13 +259,12 @@ class Window(pyglet.window.Window):
             self.color_batch_list[i].draw()
         self.arrow_batch.draw()
         self.marker_batch.draw()
-        self.text_batch.draw()
 
 #        self.fps.draw()
 
 
 def main():
-    window = Window(width=cfg.img_pix*(cfg.game_cols+cfg.control_cols+3), height=cfg.img_pix*(cfg.game_rows+2), caption="Npath", resizable=True, fullscreen=False, visible=False)
+    window = Window(width=cfg.img_pix*(cfg.game_cols+2), height=cfg.img_pix*(cfg.game_rows+2), caption="Npath", resizable=True, fullscreen=False, visible=False)
     pyglet.clock.schedule_interval(window.update, 1/120.0) # update at 60Hz
     pyglet.app.run()
 
