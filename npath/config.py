@@ -89,8 +89,14 @@ do_random_board = True
 
 # current, default and changed parameters
 
-min_cols = 1      # this actually works
-min_rows = 6      # for the moment
+min_cols = 0      # this actually works to set these both as 0
+min_rows = 0      #    which surprised me, but you don't have the
+                  # complete menu appearing to the right as it should
+                  # still at least the game does not crash
+
+#min_cols = 1      # these are the minimum you'd need for a playable
+#min_rows = 6      #    simple game with the whole menu appearing
+
 max_cols = 22     # on 1920 x 1080
 max_rows = 13     # on 1920 x 1080
 
