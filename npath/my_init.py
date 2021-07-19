@@ -45,7 +45,7 @@ def MyInitStuff (self):
 
     # other useful constants
     self.board_squares = cfg.game_rows*cfg.game_cols
-    self.window_cols = (cfg.game_cols+cfg.control_cols+3)
+    self.window_cols = (cfg.game_cols+2)
     self.window_rows = (cfg.game_rows+2)
     self.window_squares = self.window_rows*self.window_cols
 
@@ -61,15 +61,11 @@ def MyInitStuff (self):
 
     # batches for rendering
     self.fixed_batch = pyglet.graphics.Batch()
-    self.green_batch = pyglet.graphics.Batch()
-    self.control_batch = pyglet.graphics.Batch()
-    self.widget_batch = pyglet.graphics.Batch()
     self.fixed_board_batch = pyglet.graphics.Batch()
     self.variable_board_batch = pyglet.graphics.Batch()
     self.variable_guess_batch = pyglet.graphics.Batch()
     self.pointer_bottom_batch = pyglet.graphics.Batch()
     self.pointer_top_batch = pyglet.graphics.Batch()
-    self.text_batch = pyglet.graphics.Batch()
     self.arrow_batch = pyglet.graphics.Batch()
     self.marble_batch = pyglet.graphics.Batch()
     self.marker_batch = pyglet.graphics.Batch()
@@ -84,11 +80,8 @@ def MyInitStuff (self):
     # lists of sprites
     self.fixed_sprites = []
     self.fixed_board_sprites = []
-    self.green_sprites = []
     self.board_sprites = []
     self.guess_sprites = []
-    self.control_sprites = []
-    self.widget_sprites = []
     self.top_sprites = []
     self.arrow_history_sprites = []
     self.history_color_sprites = []
@@ -99,10 +92,6 @@ def MyInitStuff (self):
     self.white_active_squares_position = []
     self.guess_active_squares = []
     self.guess_active_squares_position = []
-    self.control_active_squares = []
-    self.control_active_squares_position = []
-    self.widget_active_squares = []
-    self.widget_active_squares_position = []
     self.board_to_window_index = []
 
     self.game_bg_image  = pyglet.image.load(self.png_path + "mirrors/00_bg.png")
@@ -124,19 +113,6 @@ def MyInitStuff (self):
     self.marker_images = []
     for i in range(len(self.pic_marker_list)):
         self.marker_images.append(pyglet.image.load(self.pic_marker_list[i]))
-
-    self.pic_control_list = [
-        self.png_path + "controls/picINew.png",
-        self.png_path + "controls/picICheck.png",
-        self.png_path + "controls/picIFlipBoards.png",
-        self.png_path + "controls/picIOpen.png",
-        self.png_path + "controls/picISave.png",
-        self.png_path + "controls/picIAbout.png"
-        ]
-
-    self.control_images = []
-    for i in range(len(self.pic_control_list)):
-        self.control_images.append(pyglet.image.load(self.pic_control_list[i]))
 
     self.pic_marbles_list = [
         self.png_path + "marbles/red_marbles.png",

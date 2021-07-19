@@ -28,10 +28,6 @@ half_img_pix = img_pix//2
 tic_pix = img_pix // 2
 
 
-# some space for widget piles at the right
-control_cols = 5
-
-
 # dialog cancelled operation
 dialog_cancelled = False
 
