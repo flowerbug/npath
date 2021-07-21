@@ -14,6 +14,8 @@
 
   Version npath-v0.2.0 is still not a playable game.  It runs and the dialogs have been replaced by function keys.  So to see the whole list press 'F1', 'H' or '?'.
 
+  Version npath-v0.3.0 is still not a playable game.  Added arrow keys being able to resize the window between the configured max and min sizes for columns and rows.  This is not yet working quite right for centering and it should instead be based upon the maximum size of the window dimensions instead of fixed numbers in the config.  Version 0.3.1 is just a minor update to this README and the dialog for the help adding the arrow keys.
+
 
 # The next versions will be aiming towards
 
