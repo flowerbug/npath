@@ -10,7 +10,7 @@ from pyglet import clock
 import config as cfg
 
 from active import ActiveAreaLeftMouseClickAction, ActiveAreaRightMouseClickAction, ActiveAreaMouseMoveAction
-from board import RestartGame, DrawBoard
+from board import DrawBoard, RestartGame, ClearAndResizeBoard
 from dialog import CheckBoard, CleanUpConfigAndSavedGame, LoadConfigOrUseCurrent, LoadSavedGameFromFile, NewRandomGame, RestoreConfigDefaults, SaveConfigToFile, SaveGameToFile, ShowAbout
 from marbles import CheckMarbleChangeDirection, StopMarble
 from my_init import MyInitStuff
@@ -179,22 +179,36 @@ class Window(pyglet.window.Window):
             CheckBoard(self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F11)):
             CleanUpConfigAndSavedGame()
-#        elif symbol == pyglet.window.key.LEFT:
-#            if self.cube.x > 0:
-#                self.cube.x -= cfg.img_pix
-#            print ("The 'LEFT' key was pressed")
-#        elif symbol == pyglet.window.key.RIGHT:
-#            if self.cube.x < self.game_board_x_limit:
-#                self.cube.x += cfg.img_pix
-#            print ("The 'RIGHT' key was pressed")
-#        elif symbol == pyglet.window.key.UP:
-#            if self.cube.y < self.game_board_y_limit:
-#                self.cube.y += cfg.img_pix
-#            print ("The 'UP' key was pressed")
-#        elif symbol == pyglet.window.key.DOWN:
-#            if self.cube.y > 0:
-#                self.cube.y -= cfg.img_pix
-#            print ("The 'DOWN' key was pressed")
+        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.LEFT)):
+            if cfg.game_cols > cfg.min_cols:
+                cfg.game_cols = cfg.game_cols - 1
+                cfg.game_rows = cfg.game_rows
+                cfg.show_board = 2  # reinitialize sprites and lists
+                cfg.do_random_board = True
+            print ("The 'LEFT' key was pressed")
+        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.RIGHT)):
+            if cfg.game_cols < cfg.max_cols:
+                cfg.game_cols = cfg.game_cols + 1
+                cfg.game_rows = cfg.game_rows
+                cfg.show_board = 2  # reinitialize sprites and lists
+                cfg.do_random_board = True
+            print ("The 'RIGHT' key was pressed")
+        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.UP)):
+            if cfg.game_rows > cfg.min_rows:
+                cfg.game_rows = cfg.game_rows - 1
+                cfg.game_cols = cfg.game_cols
+                cfg.show_board = 2  # reinitialize sprites and lists
+                cfg.do_random_board = True
+            print ("The 'UP' key was pressed")
+        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.DOWN)):
+            if cfg.game_rows < cfg.max_rows:
+                cfg.game_rows = cfg.game_rows + 1
+                cfg.game_cols = cfg.game_cols
+                cfg.show_board = 2  # reinitialize sprites and lists
+                cfg.do_random_board = True
+            print ("The 'DOWN' key was pressed")
+        else:
+           pass
 
 
     def on_key_release(self, symbol, modifiers):

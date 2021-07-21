@@ -83,7 +83,7 @@ do_random_board = True
 min_cols = 0      # this actually works
 min_rows = 0      # 
 
-max_cols = 22     # on 1920 x 1080
+max_cols = 28     # on 1920 x 1080
 max_rows = 13     # on 1920 x 1080
 
 game_cols = 2     # width
