@@ -28,16 +28,12 @@ half_img_pix = img_pix//2
 tic_pix = img_pix // 2
 
 
-# dialog cancelled operation
-dialog_cancelled = False
-
-
 #   save game location and initial file
 # you can always save/load other names, 
 # this is just a suggestion...
 suggested_fn = "save.json"
-this_fn_to_open = None
-this_fn_to_save = None
+this_fn_to_open = suggested_fn
+this_fn_to_save = suggested_fn
 
 home = Path.home()
 saved_dir = None
@@ -70,10 +66,9 @@ else:
 new_game_cols = None
 new_game_rows = None
 new_board = None
-new_widget_counts = None
 
 
-# which board to show, a toggle between 0, 1  when Key F1 is pressed
+# which board to show, a toggle between 0, 1  when Key F2 is pressed
 #    but we start at 2 for a new board and it's random to start...
 # 0 - puzzle to solve
 # 1 - guesses placed
@@ -85,28 +80,17 @@ do_random_board = True
 
 # current, default and changed parameters
 
-min_cols = 0      # this actually works to set these both as 0
-min_rows = 0      #    which surprised me, but you don't have the
-                  # complete menu appearing to the right as it should
-                  # still at least the game does not crash
-
-#min_cols = 1      # these are the minimum you'd need for a playable
-#min_rows = 6      #    simple game with the whole menu appearing
+min_cols = 0      # this actually works
+min_rows = 0      # 
 
 max_cols = 22     # on 1920 x 1080
 max_rows = 13     # on 1920 x 1080
 
-game_cols = 6     # width
-game_rows = 6     # height
-density = 25      # percent of the board filled up modified by density_fuzz
-density_fuzz = 10
-class_weights = [100, 75, 5, 5, 5, 15, 5]
+game_cols = 2     # width
+game_rows = 2     # height
 
-default_game_cols = 6     # width
-default_game_rows = 6     # height
-default_density = 25      # percent of the board filled up modified by density_fuzz
-default_density_fuzz = 10
-default_class_weights = [100, 75, 5, 5, 5, 15, 5]
+default_game_cols = 4     # width
+default_game_rows = 4     # height
 
 
 # need to keep track of the current square
@@ -116,25 +100,6 @@ square = None
 #  (usually the animation) is done
 no_user_actions = False
 
-
-# labels for configuration dialog
-
-property_labels = [
-    "Width",
-    "Height",
-    "Density",
-    "Fuzz"
-    ]
-
-widget_class_labels = [
-    "Simple mirrors",
-    "Flipping mirrors",
-    "Box and sink",
-    "Axial mirrors",
-    "Rotators",
-    "One-way mirrors",
-    "PURE EVIL"
-    ]
 
 pic_list = [
     png_path + "mirrors/00_bg.png",           # background
@@ -172,9 +137,5 @@ pic_list = [
     png_path + "mirrors/32_move.png",         # moving mirror: right: <--/X/<-- /X/<----
     png_path + "mirrors/33_bg.png"            # background
 ]
-
-# this indexes the above picture list so we know which ones are
-# used for labels on the configure screen
-config_percent_list = [1,2,3,5,9,10,11,14,15,18,19,22,23,31]
 
 

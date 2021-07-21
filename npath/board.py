@@ -13,59 +13,9 @@ from background import DrawBordersAndBackgrounds
 from randboard import InitRandomBoardItems
 
 
-def ClearSquareMarkers (self):
-
-#    print ("ClearSquareMarkers mouse_win_pos : ", self.mouse_win_pos)
-    value = self.board_to_window_index.index(self.mouse_win_pos)
-    how_many_markers = len(self.marker_images)
-    for i in range(how_many_markers):
-        self.board[value][i+2] = False
-        self.marker_sprites[(value*how_many_markers)+i].visible = False
-
-
-def ClearAllMarkers (self):
-
-#    print ("ClearAllMarkers")
-    value = len(self.board)
-    how_many_markers = len(self.marker_images)
-    for i in range(value):
-        for j in range(how_many_markers):
-            self.board[i][j+2] = False
-            self.marker_sprites[(i*how_many_markers)+j].visible = False
-
-
-def ToggleMarker (self, mark):
-
-#    print ("ToggleMarker mark, mouse_win_pos : ", mark, self.mouse_win_pos)
-    try:
-        value = self.board_to_window_index.index(self.mouse_win_pos)
-        how_many_markers = len(self.marker_images)
-        self.board[value][mark+2] = not(self.board[value][mark+2])
-        self.marker_sprites[(value*how_many_markers)+mark].visible = not(self.marker_sprites[(value*how_many_markers)+mark].visible)
-    except:
-        pass
-
-
 def RestartGame (self):
 
-    #print ("RestartGame")
-    ClearAllMarkers (self)
-
-    # reset and then recount the widget pile count list
-    try:
-        del self.widget_pile_list_counts
-    except AttributeError:
-        pass
-
-    self.widget_pile_list_counts = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-
-    # ok, now recount what is on the board
-    value = len(self.board)
-    for i in range(value):
-        mirror_value = self.board[i][0]
-        if (mirror_value != 0):
-            lookup_value = self.widget_lookup_table[mirror_value] - 1
-            self.widget_pile_list_counts[lookup_value] += 1
+    print ("Restart Game")
 
     # clear guesses
     value = len(self.board)
@@ -77,6 +27,21 @@ def RestartGame (self):
         for j in range(len(self.guess_sprites)):
             self.guess_sprites[j].image = self.game_bg_image
 
+    # hide history and arrows
+    if (len(self.arrow_history_sprites) != 0):
+        for j in range(len(self.arrow_history_sprites)):
+            self.arrow_history_sprites[j][0].visible = False
+            self.arrow_history_sprites[j][1].visible = False
+
+    if (len(self.history_color_sprites) != 0):
+        for j in range(len(self.history_color_sprites)):
+            self.history_color_sprites[j][0].visible = False
+            self.history_color_sprites[j][1].visible = False
+
+    if (len(self.marble_sprites) != 0):
+        for j in range(len(self.marble_sprites)):
+            self.marble_sprites[j].visible = False
+
 
 def ClearAndResizeBoard (self):
 
@@ -85,11 +50,6 @@ def ClearAndResizeBoard (self):
     self.set_visible(True)
 
     # use the current cfg values
-    self.density = cfg.density
-    self.density_fuzz = cfg.density_fuzz
-    self.class_weights = cfg.class_weights
-
-    # don't forget these...
     self.board_squares = cfg.game_rows*cfg.game_cols
     self.window_rows = (cfg.game_rows+2)
     self.window_cols = (cfg.game_cols+2)
@@ -119,14 +79,7 @@ def ClearAndResizeBoard (self):
         pass
     self.board = []
 
-    self.board = [[0 for i in range(6)] for j in range(self.board_squares)]
-
-    try:
-        del self.widget_pile_list_counts
-    except AttributeError:
-        pass
-
-    self.widget_pile_list_counts = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    self.board = [[0 for i in range(2)] for j in range(self.board_squares)]
 
     # move the gcube
     try:
@@ -206,13 +159,6 @@ def DrawBoard (self):
             del self.board_to_window_index
             self.board_to_window_index = []
 
-        if (len(self.marker_sprites) != 0):
-            for j in range(len(self.marker_sprites)):
-                #self.marker_sprites[j].visible = False
-                self.marker_sprites[j].delete()
-            del self.marker_sprites
-            self.marker_sprites = []
-
         if (len(self.arrow_history_sprites) != 0):
             for j in range(len(self.arrow_history_sprites)):
                 self.arrow_history_sprites[j][0].visible = False
@@ -234,8 +180,6 @@ def DrawBoard (self):
             InitRandomBoardItems (self)
             DrawBordersAndBackgrounds (self)
             cfg.do_random_board = False
-#            print ("DrawR self.wpl ", self.widget_pile_list)
-#            print ("DrawR self.wplc ", self.widget_pile_list_counts)
         else:
             # it's a newly loaded board
 #            print ("DrawBoard Draw Loaded Board")
@@ -247,11 +191,7 @@ def DrawBoard (self):
             ClearAndResizeBoard (self)
             del self.board
             self.board = copy.deepcopy(cfg.new_board)
-            del self.widget_pile_list_counts
-            self.widget_pile_list_counts = copy.deepcopy(cfg.new_widget_counts)
             DrawBordersAndBackgrounds (self)
-#            print ("DrawL self.wpl ", self.widget_pile_list)
-#            print ("DrawL self.wplc ", self.widget_pile_list_counts)
 
         # draw game grid
 #        print ("DrawBoard show board 2", cfg.show_board)
@@ -276,13 +216,6 @@ def DrawBoard (self):
                 self.guess_active_squares.append(win_pos)
                 self.guess_active_squares_position.append([x_pos,y_pos])
                 self.board_to_window_index.append(win_pos)
-                for z in range(len(self.marker_images)):
-                    self.marker_sprite = pyglet.sprite.Sprite( self.marker_images[z], batch=self.marker_batch, x = x_pos, y = y_pos)
-                    if (self.board[board_position][z+2] == True):
-                        self.marker_sprite.visible = True
-                    else:
-                        self.marker_sprite.visible = False
-                    self.marker_sprites.append(self.marker_sprite)
                 x_pos += cfg.img_pix
                 win_pos += 1
             y_pos += cfg.img_pix
@@ -297,7 +230,6 @@ def DrawBoard (self):
 #        print ("game board limits ", self.game_board_x_lower_limit, self.game_board_x_upper_limit,
 #            self.game_board_y_lower_limit, self.game_board_y_upper_limit)
 #        print ("DrawBoard board initial board finish", self.board)
-#        print ("widget_pile_list_counts ", self.widget_pile_list_counts)
 
     elif (cfg.show_board == 0):
 

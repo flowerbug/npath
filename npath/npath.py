@@ -10,10 +10,11 @@ from pyglet import clock
 import config as cfg
 
 from active import ActiveAreaLeftMouseClickAction, ActiveAreaRightMouseClickAction, ActiveAreaMouseMoveAction
-from board import ClearSquareMarkers, ClearAllMarkers, ToggleMarker, RestartGame, DrawBoard
-from dialog import ShowHelp
+from board import RestartGame, DrawBoard
+from dialog import CheckBoard, CleanUpConfigAndSavedGame, LoadConfigOrUseCurrent, LoadSavedGameFromFile, NewRandomGame, RestoreConfigDefaults, SaveConfigToFile, SaveGameToFile, ShowAbout
 from marbles import CheckMarbleChangeDirection, StopMarble
 from my_init import MyInitStuff
+from version import GetVersion
 
 
 class Window(pyglet.window.Window):
@@ -33,6 +34,9 @@ class Window(pyglet.window.Window):
         super(Window, self).__init__(width, height, caption, resizable, fullscreen, visible, *args, **kwargs)
 
         self.set_visible(False)
+
+        print("Pyglet version : ", pyglet.version)
+        print("Npath version  : ", GetVersion())
 
         MyInitStuff (self)
 
@@ -135,7 +139,7 @@ class Window(pyglet.window.Window):
         elif ((symbol == pyglet.window.key.F1) or
             (symbol == pyglet.window.key.QUESTION) or
             (symbol == pyglet.window.key.H)):
-            ShowHelp (self)
+            ShowAbout (self)
 #            print ("The 'F1', 'H', or '?' key was pressed ")
             pass
         elif symbol == pyglet.window.key.F2:
@@ -158,19 +162,23 @@ class Window(pyglet.window.Window):
                     self.picked_up_sprite.visible = True
 #            print ("The 'F2' key was pressed, show board changed to ", cfg.show_board)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F3)):
-            ClearSquareMarkers(self)
+            RestoreConfigDefaults()
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F4)):
-            ClearAllMarkers(self)
+            LoadConfigOrUseCurrent()
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F5)):
+            SaveConfigToFile()
+        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F6)):
+            LoadSavedGameFromFile(self)
+        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F7)):
+            SaveGameToFile(self)
+        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F8)):
+            NewRandomGame(self)
+        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F9)):
             RestartGame(self)
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.J)):
-            ToggleMarker(self, 0)
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.K)):
-            ToggleMarker(self, 1)
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.L)):
-            ToggleMarker(self, 2)
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.SEMICOLON)):
-            ToggleMarker(self, 3)
+        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F10)):
+            CheckBoard(self)
+        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F11)):
+            CleanUpConfigAndSavedGame()
 #        elif symbol == pyglet.window.key.LEFT:
 #            if self.cube.x > 0:
 #                self.cube.x -= cfg.img_pix
@@ -258,7 +266,6 @@ class Window(pyglet.window.Window):
         for i in range(self.history_limit):
             self.color_batch_list[i].draw()
         self.arrow_batch.draw()
-        self.marker_batch.draw()
 
 #        self.fps.draw()
 

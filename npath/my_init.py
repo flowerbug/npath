@@ -68,7 +68,6 @@ def MyInitStuff (self):
     self.pointer_top_batch = pyglet.graphics.Batch()
     self.arrow_batch = pyglet.graphics.Batch()
     self.marble_batch = pyglet.graphics.Batch()
-    self.marker_batch = pyglet.graphics.Batch()
 
     # colors need precedence order for arrows
     #   we only use as many colors to mark arrows we keep in history
@@ -86,7 +85,6 @@ def MyInitStuff (self):
     self.arrow_history_sprites = []
     self.history_color_sprites = []
     self.marble_sprites = []
-    self.marker_sprites = []
 
     self.white_active_squares = []
     self.white_active_squares_position = []
@@ -102,17 +100,6 @@ def MyInitStuff (self):
 
     self.gcube_image = pyglet.image.load(self.png_path + "misc/gcube.png")
     self.cube_image  = pyglet.image.load(self.png_path + "misc/cube.png")
-
-    self.pic_marker_list = [
-        self.png_path + "markers/picMkCircle.png",
-        self.png_path + "markers/picMkTriangle.png",
-        self.png_path + "markers/picMkSquare.png",
-        self.png_path + "markers/picMkVee.png"
-        ]
-
-    self.marker_images = []
-    for i in range(len(self.pic_marker_list)):
-        self.marker_images.append(pyglet.image.load(self.pic_marker_list[i]))
 
     self.pic_marbles_list = [
         self.png_path + "marbles/red_marbles.png",
@@ -211,8 +198,6 @@ def MyInitStuff (self):
     self.widget_pile_list = [1,2,3,5,9,10,11,12,13,15,16,17,19,20,21,22,23,27,31,32]
     for i in self.widget_pile_list:
         self.spr_mv_list[i][0] = 1
-    self.widget_pile_list_counts = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    self.widget_labels = []
 
     # eventually we're going to have to index any widget no matter how it
     # is rotated...
@@ -246,29 +231,6 @@ def MyInitStuff (self):
         28, 29, 30, 27,
     #   31, 32
         0, 0]
-
-    # these flags are for the configuration of each group percentages images list
-    # even numbers are left image indexes, odd are right, seven groups of two
-    self.config_percent_list = [1,2,3,5,9,10,11,14,15,18,19,22,23,31]
-    for i in self.config_percent_list:
-        self.spr_mv_list[i][3] = 1
-
-    self.property_labels = [
-                            "Width",
-                            "Height",
-                            "Density",
-                            "Fuzz"
-                           ]
-
-    self.widget_cl_labels = [
-                          "Simple mirrors",
-                          "Flipping mirrors",
-                          "Box and sink",
-                          "Axial mirrors",
-                          "Rotators",
-                          "One-way mirrors",
-                          "PURE EVIL"
-                         ]
 
     # 0 = nowhere, 1 = widget, 2 = board
     self.picked_up_from = 0
