@@ -12,13 +12,13 @@
 
   Version npath-v0.1.0 is not a playable game.  It runs and doesn't crash but is merely being used to get ready for the more general framework.  Removing the control and widget menus to the right.  Displaying the random board and guess board will still work.
 
+  Version npath-v0.2.0 is still not a playable game.  It runs and the dialogs have been replaced by function keys.  So to see the whole list press 'F1', 'H' or '?'.
+
 
 # The next versions will be aiming towards
 
-    Removing the control menu and widget piles and replacing those by keyboard commands - all the dialogs get coverted or changed.
+  Removing the artwork and replacing it by colors so that nothing will be based upon fixed sized images, which should allow us to get down to a pixel sized cell in the grid if we want.
 
-    Removing the artwork and replacing it by colors so that nothing will be based upon fixed sized images, which should allow us to get down to a pixel sized cell in the grid if we want.
+  The logic of the game is removed to turn it into a simple matching guessing game of colors.
 
-    The logic of the game is removed to turn it into a simple matching guessing game of colors.
-
-    Reducing the number of batches to one and using groups instead.
+  Reducing the number of batches to one and using groups instead.

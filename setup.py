@@ -33,9 +33,7 @@ setup(
                     "wheel >= 0.32.3"
                     ],
     packages=find_packages(),
-    install_requires=["pyglet >= 1.5.0",
-                      "pycairo",
-                      "pygobject"
+    install_requires=["pyglet >= 1.5.0"
                      ],
     provides=["npath"],
     include_package_data=True,
