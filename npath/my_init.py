@@ -28,7 +28,7 @@ def MyInitStuff (self):
     self.top_screen = self.top_display.get_default_screen()
     self.full_screen_width = self.top_screen.width
     self.full_screen_height = self.top_screen.height
-    print ("Initial Window Size : ", self.full_screen_width, self.full_screen_height)
+    print ("Full Window Size : ", self.full_screen_width, self.full_screen_height)
     self.windows_lst = self.top_display.get_windows()
     self.screen_width = self.windows_lst[0].width
     self.screen_height = self.windows_lst[0].height

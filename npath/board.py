@@ -57,8 +57,8 @@ def ClearAndResizeBoard (self):
 
     # adjust the main window size to fit
 
-    self.screen_width = ((cfg.game_cols+2) * cfg.img_pix)
-    self.screen_height = ((cfg.game_rows+2) * cfg.img_pix)
+    self.screen_width = (self.window_cols * cfg.img_pix)
+    self.screen_height = (self.window_rows * cfg.img_pix)
 
     self.game_x = (self.full_screen_width - self.screen_width) // 2
     self.game_y = (self.full_screen_height - self.screen_height) // 2
