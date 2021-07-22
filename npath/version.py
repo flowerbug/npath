@@ -1,3 +1,3 @@
 def GetVersion ():
 
-    return ("0.3.3")
+    return ("0.3.4")
