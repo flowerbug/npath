@@ -66,6 +66,8 @@ def ClearAndResizeBoard (self):
     self.set_location(self.game_x, self.game_y)
     self.set_size(self.screen_width, self.screen_height)
 
+    print ("Moved and Resized WL[0] Location Size : ", self.screen_width, self.screen_height, self.game_x, self.game_y )
+
     # ok, let's see...
 #   self.set_visible(True)
 
