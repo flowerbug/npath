@@ -80,11 +80,14 @@ do_random_board = True
 
 # current, default and changed parameters
 
-min_cols = 0      # this actually works
-min_rows = 0      # 
+min_cols = 0     # this actually works
+min_rows = 0     # 
 
-max_cols = 28     # on 1920 x 1080
-max_rows = 13     # on 1920 x 1080
+max_cols = 50    # for temporary testing
+max_rows = 50    #
+
+#max_cols = 28     # on 1920 x 1080
+#max_rows = 13     # on 1920 x 1080
 
 game_cols = 2     # width
 game_rows = 2     # height

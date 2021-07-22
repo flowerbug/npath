@@ -194,15 +194,15 @@ class Window(pyglet.window.Window):
                 cfg.do_random_board = True
             print ("The 'RIGHT' key was pressed")
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.UP)):
-            if cfg.game_rows > cfg.min_rows:
-                cfg.game_rows = cfg.game_rows - 1
+            if cfg.game_rows < cfg.max_rows:
+                cfg.game_rows = cfg.game_rows + 1
                 cfg.game_cols = cfg.game_cols
                 cfg.show_board = 2  # reinitialize sprites and lists
                 cfg.do_random_board = True
             print ("The 'UP' key was pressed")
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.DOWN)):
-            if cfg.game_rows < cfg.max_rows:
-                cfg.game_rows = cfg.game_rows + 1
+            if cfg.game_rows > cfg.min_rows:
+                cfg.game_rows = cfg.game_rows - 1
                 cfg.game_cols = cfg.game_cols
                 cfg.show_board = 2  # reinitialize sprites and lists
                 cfg.do_random_board = True

@@ -14,13 +14,13 @@
 
   Version npath-v0.2.0 is still not a playable game.  It runs and the dialogs have been replaced by function keys.  So to see the whole list press 'F1', 'H' or '?'.
 
-  Version npath-v0.3.0 is still not a playable game.  Added arrow keys being able to resize the window between the configured max and min sizes for columns and rows.  This is not yet working quite right for centering and it should instead be based upon the maximum size of the window dimensions instead of fixed numbers in the config.  Version 0.3.1 is just a minor update to this README and the dialog for the help adding the arrow keys.
+  Version npath-v0.3.0 is still not a playable game.  Added arrow keys being able to resize the window between the configured max and min sizes for columns and rows.  This is not yet working quite right for centering and it should instead be based upon the maximum size of the window dimensions instead of fixed numbers in the config.  Version 0.3.1 is just a minor update to this README and the dialog for the help adding the arrow keys.  Version 0.3.2 is a minor bug fix version plus I bumped the config max limits to 50 for some testing.
 
 
 # The next versions will be aiming towards
 
   Removing the artwork and replacing it by colors so that nothing will be based upon fixed sized images, which should allow us to get down to a pixel sized cell in the grid if we want.
 
-  The logic of the game is removed to turn it into a simple matching guessing game of colors.
+  The logic of the game is changed to turn it into something that I've not figured out yet.
 
   Reducing the number of batches to one and using groups instead.

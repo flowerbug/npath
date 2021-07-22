@@ -60,8 +60,8 @@ def ClearAndResizeBoard (self):
     self.screen_width = ((cfg.game_cols+2) * cfg.img_pix)
     self.screen_height = ((cfg.game_rows+2) * cfg.img_pix)
 
-    self.game_x = (self.full_screen_width//2) - (self.screen_width//2)
-    self.game_y = (self.full_screen_height//2) - ((self.screen_height//2))
+    self.game_x = (self.full_screen_width - self.screen_width) // 2
+    self.game_y = (self.full_screen_height - self.screen_height) // 2
 
     self.set_location(self.game_x, self.game_y)
     self.set_size(self.screen_width, self.screen_height)
