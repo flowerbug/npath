@@ -82,9 +82,6 @@ def MyInitStuff (self):
     self.board_sprites = []
     self.guess_sprites = []
     self.top_sprites = []
-    self.arrow_history_sprites = []
-    self.history_color_sprites = []
-    self.marble_sprites = []
 
     self.white_active_squares = []
     self.white_active_squares_position = []
@@ -102,150 +99,11 @@ def MyInitStuff (self):
     self.gcube_image = pyglet.image.load(self.png_path + "misc/gcube.png")
     self.cube_image  = pyglet.image.load(self.png_path + "misc/cube.png")
 
-    self.pic_marbles_list = [
-        self.png_path + "marbles/red_marbles.png",
-        self.png_path + "marbles/green_marbles.png",
-        self.png_path + "marbles/blue_marbles.png",
-        self.png_path + "marbles/yellow_marbles.png",
-        self.png_path + "marbles/purple_marbles.png",
-        self.png_path + "marbles/black_marbles.png"
-        ]
-
-    self.marble_images = []
-    for i in range(len(self.pic_marbles_list)):
-        self.marble_images.append(pyglet.image.load(self.pic_marbles_list[i]))
-
-    self.pic_color_list = [
-        self.png_path + "colors/red_half.png",
-        self.png_path + "colors/green_half.png",
-        self.png_path + "colors/blue_half.png",
-        self.png_path + "colors/yellow_half.png",
-        self.png_path + "colors/purple_half.png",
-        self.png_path + "colors/black_half.png"
-        ]
-
-    self.color_images = []
-    for i in range(len(self.pic_color_list)):
-        self.color_images.append(pyglet.image.load(self.pic_color_list[i]))
-
-    self.pic_arrow_list = [
-        self.png_path + "arrows/picDLeftW.png",
-        self.png_path + "arrows/picDRightW.png",
-        self.png_path + "arrows/picDUpW.png",
-        self.png_path + "arrows/picDDownW.png"
-        ]
-
-    self.arrow_images = []
-    for i in range(len(self.pic_arrow_list)):
-        self.arrow_images.append(pyglet.image.load(self.pic_arrow_list[i]))
-
-    # arrow history list and current index, set up colors and marbles too...
-    self.arrow_index = 0
-    self.anim = []
-    self.marble_seq = []
-    anim_index = 0
-    for i in range(self.history_limit):
-
-        spr_a = pyglet.sprite.Sprite(self.arrow_images[0], batch=self.arrow_batch)
-        spr_a.visible = False
-        spr_b = pyglet.sprite.Sprite(self.arrow_images[0], batch=self.arrow_batch)
-        spr_b.visible = False
-        self.arrow_history_sprites.append([spr_a, spr_b])
-
-        spr_c = pyglet.sprite.Sprite(self.color_images[i], batch=self.color_batch_list[i])
-        spr_c.visible = False
-        spr_d = pyglet.sprite.Sprite(self.color_images[i], batch=self.color_batch_list[i])
-        spr_d.visible = False
-        self.history_color_sprites.append([spr_c, spr_d])
-
-        # set up a long looping animation
-        marble_sequence = pyglet.image.ImageGrid(self.marble_images[i], 1, 16)
-        self.marble_seq.append(marble_sequence)
-        self.anim.append(pyglet.image.Animation.from_image_sequence(self.marble_seq[anim_index], 0.02, True))
-        spr_e = pyglet.sprite.Sprite(self.anim[anim_index], batch=self.marble_batch)
-        spr_e.visible = True
-        spr_e.x = 0
-        spr_e.y = 0
-        spr_e.dx = 0
-        spr_e.dy = 0
-        self.marble_sprites.append(spr_e)
-        anim_index += 1
-
-        # now set up the short animation that plays once
-        marble_sequence = marble_sequence[:1]
-        self.marble_seq.append(marble_sequence)
-        self.anim.append(pyglet.image.Animation.from_image_sequence(self.marble_seq[anim_index], 1, False))
-        spr_e = pyglet.sprite.Sprite(self.anim[anim_index], batch=self.marble_batch)
-        spr_e.visible = False
-        spr_e.x = 0
-        spr_e.y = 0
-        spr_e.dx = 0
-        spr_e.dy = 0
-        self.marble_sprites.append(spr_e)
-        anim_index += 1
-
-    self.spr_mv_list = []
+    self.sprite_list = []
     sprite = pyglet.sprite.Sprite(self.game_tile_image)
-    self.spr_mv_list.append([0, self.game_tile_image, sprite, 0, 0])
-
+    self.sprite_list.append([0, self.game_tile_image, sprite, 0, 0])
     for i in range(len(cfg.color_list)):
         image = pyglet.image.SolidColorImagePattern(color=cfg.color_list[i]).create_image(width=cfg.img_pix, height=cfg.img_pix)
         sprite = pyglet.sprite.Sprite(image)
-        self.spr_mv_list.append([0, image, sprite, 0, 0])
-
-    # these flags are for the widget pile list
-    #     position is taken from widget list location index
-    #     when self.widget_pile_list_counts[position] != 0 then the index
-    #        can be used to get the number from this list to index into
-    #         self.spr_mv_list for the image or sprite or ...
-    self.widget_pile_list = [1,2,3,5,9,10,11,12,13,15,16,17,19,20,21,22,23,27,31,32]
-    for i in self.widget_pile_list:
-        self.spr_mv_list[i][0] = 1
-
-    # eventually we're going to have to index any widget no matter how it
-    # is rotated...
-    self.widget_lookup_table = [0, 1, 2, 
-                                3, 3,
-                                4, 4, 4, 4,
-                                5, 6, 7, 8,
-                                9, 9,
-                                10, 11,
-                                12, 12,
-                                13, 14, 15, 16,
-                                17, 17, 17, 17,
-                                18, 18, 18, 18,
-                                19, 20
-                               ]
-
-    # speaking of rotating, we need to know how many places it 
-    #   rotates through - of course 0 means it doesn't rotate at all
-    # note that this aligns with self.widget_lookup_table
-    self.widget_rotate_modulus = [0,0,0,2,4,0,0,0,0,2,0,0,2,0,0,0,0,4,4,0,0]
-
-    # this says what the next widget will be in the sequence if it isn't 0
-    self.widget_next_widget = [
-    #   0 1 2 3 4 5 6 7 8 9 0 1 2
-        0,0,0,4,3,6,7,8,5,0,0,0,0,
-        14,13,0,0,18,17,
-        0,0,0,0,
-    #   23-26 
-        24, 25, 26, 23,
-    #   27-30
-        28, 29, 30, 27,
-    #   31, 32
-        0, 0]
-
-    # 0 = nowhere, 1 = widget, 2 = board
-    self.picked_up_from = 0
-    self.picked_up = False
-
-    # direction sets will make things easier later
-    self.dir_left = []
-    self.dir_right = []
-    self.dir_up = []
-    self.dir_down = []
-
-    # some kind of limit to break out of loops
-    self.tick_limit = 100 + (self.board_squares * 4)
-
+        self.sprite_list.append([0, image, sprite, 0, 0])
 

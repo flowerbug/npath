@@ -27,21 +27,6 @@ def RestartGame (self):
         for j in range(len(self.guess_sprites)):
             self.guess_sprites[j].image = self.game_bg_image
 
-    # hide history and arrows
-    if (len(self.arrow_history_sprites) != 0):
-        for j in range(len(self.arrow_history_sprites)):
-            self.arrow_history_sprites[j][0].visible = False
-            self.arrow_history_sprites[j][1].visible = False
-
-    if (len(self.history_color_sprites) != 0):
-        for j in range(len(self.history_color_sprites)):
-            self.history_color_sprites[j][0].visible = False
-            self.history_color_sprites[j][1].visible = False
-
-    if (len(self.marble_sprites) != 0):
-        for j in range(len(self.marble_sprites)):
-            self.marble_sprites[j].visible = False
-
 
 def ClearAndResizeBoard (self):
 
@@ -126,22 +111,6 @@ def DrawBoard (self):
             del self.white_active_squares_position
             self.white_active_squares_position = []
 
-        if (len(self.dir_left) != 0):
-            del self.dir_left
-            self.dir_left = []
-
-        if (len(self.dir_right) != 0):
-            del self.dir_right
-            self.dir_right = []
-
-        if (len(self.dir_up) != 0):
-            del self.dir_up
-            self.dir_up = []
-
-        if (len(self.dir_down) != 0):
-            del self.dir_down
-            self.dir_down = []
-
         if (len(self.guess_sprites) != 0):
             for j in range(len(self.guess_sprites)):
                 #self.guess_sprites[j].visible = False
@@ -161,19 +130,6 @@ def DrawBoard (self):
             del self.board_to_window_index
             self.board_to_window_index = []
 
-        if (len(self.arrow_history_sprites) != 0):
-            for j in range(len(self.arrow_history_sprites)):
-                self.arrow_history_sprites[j][0].visible = False
-                self.arrow_history_sprites[j][1].visible = False
-
-        if (len(self.history_color_sprites) != 0):
-            for j in range(len(self.history_color_sprites)):
-                self.history_color_sprites[j][0].visible = False
-                self.history_color_sprites[j][1].visible = False
-
-        if (len(self.marble_sprites) != 0):
-            for j in range(len(self.marble_sprites)):
-                self.marble_sprites[j].visible = False
 
         if (cfg.do_random_board == True):
 #            print ("DrawBoard Draw Random Board")
@@ -211,9 +167,9 @@ def DrawBoard (self):
                 board_position = (cfg.game_cols * x) + y
 #                print ("BP WP x y: ", board_position, win_pos, x, y)
                 self.fixed_board_sprites.append( pyglet.sprite.Sprite( self.game_bg_image, batch=self.fixed_board_batch, x = x_pos, y = y_pos))
-                image = self.spr_mv_list[self.board[board_position][0]][1]
+                image = self.sprite_list[self.board[board_position][0]][1]
                 self.board_sprites.append( pyglet.sprite.Sprite( image, batch=self.variable_board_batch, x = x_pos, y = y_pos))
-                image = self.spr_mv_list[self.board[board_position][1]][1]
+                image = self.sprite_list[self.board[board_position][1]][1]
                 self.guess_sprites.append( pyglet.sprite.Sprite( image, batch=self.variable_guess_batch, x = x_pos, y = y_pos))
                 self.guess_active_squares.append(win_pos)
                 self.guess_active_squares_position.append([x_pos,y_pos])
