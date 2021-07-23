@@ -31,11 +31,9 @@ def DrawBordersAndBackgrounds (self):
         self.fixed_sprites.append( pyglet.sprite.Sprite( self.white_bg_image, batch=self.fixed_batch, x = x_pos, y = y_pos))
         self.white_active_squares.append((self.window_cols * (y_pos // cfg.img_pix)))
         self.white_active_squares_position.append([x_pos,y_pos])
-        self.dir_left.append((self.window_cols * (y_pos // cfg.img_pix)))
         self.fixed_sprites.append( pyglet.sprite.Sprite( self.white_bg_image, batch=self.fixed_batch, x = x_pos_right, y = y_pos))
         self.white_active_squares.append((self.window_cols * (y_pos // cfg.img_pix))+cfg.game_cols+1)
         self.white_active_squares_position.append([x_pos_right,y_pos])
-        self.dir_right.append((self.window_cols * (y_pos // cfg.img_pix))+cfg.game_cols+1)
         y_pos += cfg.img_pix
     y_pos = 0
     x_pos = cfg.img_pix
@@ -44,15 +42,9 @@ def DrawBordersAndBackgrounds (self):
         self.fixed_sprites.append( pyglet.sprite.Sprite( self.white_bg_image, batch=self.fixed_batch, x = x_pos, y = y_pos))
         self.white_active_squares.append(x+1)
         self.white_active_squares_position.append([x_pos,y_pos])
-        self.dir_down.append(x+1)
         self.fixed_sprites.append( pyglet.sprite.Sprite( self.white_bg_image, batch=self.fixed_batch, x = x_pos, y = y_pos_up))
         self.white_active_squares.append(((self.window_rows-1) * self.window_cols)+x+1)
         self.white_active_squares_position.append([x_pos,y_pos_up])
-        self.dir_up.append(((self.window_rows-1) * self.window_cols)+x+1)
         x_pos += cfg.img_pix
 #    print ("White active squares", self.white_active_squares)
 #    print ("White active square positions", self.white_active_squares_position)
-#    print ("Left white active squares", self.dir_left)
-#    print ("Right white active squares", self.dir_right)
-#    print ("Up white active squares", self.dir_up)
-#    print ("Down white active squares", self.dir_down)

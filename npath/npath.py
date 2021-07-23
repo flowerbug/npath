@@ -12,7 +12,6 @@ import config as cfg
 from active import ActiveAreaLeftMouseClickAction, ActiveAreaRightMouseClickAction, ActiveAreaMouseMoveAction
 from board import DrawBoard, RestartGame, ClearAndResizeBoard
 from dialog import CheckBoard, CleanUpConfigAndSavedGame, LoadConfigOrUseCurrent, LoadSavedGameFromFile, NewRandomGame, RestoreConfigDefaults, SaveConfigToFile, SaveGameToFile, ShowAbout
-from marbles import CheckMarbleChangeDirection, StopMarble
 from my_init import MyInitStuff
 from version import GetVersion
 
@@ -53,12 +52,6 @@ class Window(pyglet.window.Window):
         self.cube = pyglet.sprite.Sprite( self.cube_image, batch=self.pointer_top_batch, x = x_pos, y = y_pos)
         self.cube.visible = False
         self.top_sprites.append(self.cube)
-
-        self.picked_up = False
-        self.picked_up_window_square = -1
-        self.picked_up_sprite = pyglet.sprite.Sprite( self.game_bg_image, batch=self.pointer_top_batch, x = 0, y = 0)
-        self.picked_up_sprite.visible = False
-        self.picked_up_sprite.opacity = 150
 
 
     def on_draw(self):
@@ -111,11 +104,7 @@ class Window(pyglet.window.Window):
 
         if (win_pos in self.guess_active_squares):
             self.mouse_win_pos = win_pos
-
-        if (self.picked_up):
             ActiveAreaMouseMoveAction(self, x, x_rec, y, y_rec, win_pos)
-        else:
-            pass
 
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
@@ -153,13 +142,9 @@ class Window(pyglet.window.Window):
             if (cfg.show_board == 0):
                 self.cube.visible = True
                 self.gcube.visible = False
-                if (self.picked_up == True):
-                    self.picked_up_sprite.visible = False
             elif (cfg.show_board == 1):
                 self.cube.visible = False
                 self.gcube.visible = True
-                if (self.picked_up == True):
-                    self.picked_up_sprite.visible = True
 #            print ("The 'F2' key was pressed, show board changed to ", cfg.show_board)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F3)):
             RestoreConfigDefaults()
@@ -220,48 +205,7 @@ class Window(pyglet.window.Window):
 
 
     def update(self, dt):
-
-        for i in range(len(self.marble_sprites)):
-            if ((self.marble_sprites[i].x == 0) and
-                (self.marble_sprites[i].y == 0)):
-                self.marble_sprites[i].dx = 0
-                self.marble_sprites[i].dy = 0
-                self.marble_sprites[i].visible = False
-            elif (self.marble_sprites[i].visible == True):
-
-                if ((self.marble_sprites[i].dx != 0) and
-                    (self.marble_sprites[i].x >= self.game_board_x_upper_limit)):
-                    self.marble_sprites[i].x = self.game_board_x_upper_limit
-                    self.marble_sprites[i].dx = 0
-                    StopMarble (self, i)
-                elif ((self.marble_sprites[i].dx != 0) and
-                    (self.marble_sprites[i].x <= (self.game_board_x_lower_limit - cfg.img_pix))):
-                    self.marble_sprites[i].x = self.game_board_x_lower_limit - cfg.img_pix
-                    self.marble_sprites[i].dx = 0
-                    StopMarble (self, i)
-                elif (self.marble_sprites[i].dx != 0):
-                    if (((self.marble_sprites[i].x % cfg.img_pix) == 0) and
-                        ((self.marble_sprites[i].y % cfg.img_pix) == 0)):
-                        CheckMarbleChangeDirection (self, i, self.marble_sprites[i].x, self.marble_sprites[i].y)
-                    tmp_pix = cfg.tic_pix
-                    self.marble_sprites[i].x += tmp_pix * self.marble_sprites[i].dx
-
-                if ((self.marble_sprites[i].dy != 0) and
-                    (self.marble_sprites[i].y >= self.game_board_y_upper_limit)):
-                    self.marble_sprites[i].y = self.game_board_y_upper_limit
-                    self.marble_sprites[i].dy = 0
-                    StopMarble (self, i)
-                elif ((self.marble_sprites[i].dy != 0) and
-                    (self.marble_sprites[i].y <= (self.game_board_y_lower_limit - cfg.img_pix))):
-                    self.marble_sprites[i].y = self.game_board_y_lower_limit - cfg.img_pix
-                    self.marble_sprites[i].dy = 0
-                    StopMarble (self, i)
-                elif (self.marble_sprites[i].dy != 0):
-                    if (((self.marble_sprites[i].x % cfg.img_pix) == 0) and
-                        ((self.marble_sprites[i].y % cfg.img_pix) == 0)):
-                        CheckMarbleChangeDirection (self, i, self.marble_sprites[i].x, self.marble_sprites[i].y)
-                    tmp_pix = cfg.tic_pix
-                    self.marble_sprites[i].y += tmp_pix * self.marble_sprites[i].dy
+        pass
 
 
     def render(self):
@@ -276,10 +220,6 @@ class Window(pyglet.window.Window):
         self.variable_guess_batch.draw()
         self.pointer_bottom_batch.draw()
         self.pointer_top_batch.draw()
-        self.marble_batch.draw()
-        for i in range(self.history_limit):
-            self.color_batch_list[i].draw()
-        self.arrow_batch.draw()
 
 #        self.fps.draw()
 

@@ -8,7 +8,10 @@ import sys
 
 import config as cfg
 
-from marbles import DoLeftClickWhiteAction
+
+def DoLeftClickWhiteAction (self, x, x_rec, y, y_rec, win_pos):
+
+    pass
 
 
 def ActiveAreaLeftMouseClickAction (self, x, x_rec, y, y_rec, win_pos):
