@@ -16,6 +16,8 @@
 
   Version 0.3.0 is still not a playable game.  Added arrow keys being able to resize the window between the configured max and min sizes for columns and rows.  This is not yet working quite right for centering and it should instead be based upon the maximum size of the window dimensions instead of fixed numbers in the config.  Version 0.3.1 is just a minor update to this README and the dialog for the help adding the arrow keys.  Version 0.3.2 is a minor bug fix version plus I bumped the config max limits to 50 for some testing.  Version 0.3.3 prints out window location and size.  Version 0.3.4 fixes my mistake.  Version 0.3.5 a few code cleanups.
 
+  Version 0.4.0 is still not playable as a game.  I started to remove the previous images which are used to play the game this framework is taken from.  Version 0.4.1 updates this README.
+
 
 # The next versions will be aiming towards
 
