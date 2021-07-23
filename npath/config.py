@@ -9,6 +9,43 @@ from pathlib import Path, PurePath
 import os
 
 
+# colors
+color_list = [
+    (  0,   0,   0, 255),  # black
+    (255,   0,   0, 255),  # red
+    (  0, 255,   0, 255),  # green
+    (  0,   0, 255, 255),  # blue
+    (128,   0, 128, 255),  # purple
+    (255, 165,   0, 255),  # orange
+    (255, 255,   0, 255),  # yellow
+    (  0, 255, 255, 255),  # cyan
+    (255,   0, 255, 255),  # fuchia
+    (255, 192, 203, 255),  # pink
+    ( 34, 139,  34, 255),  # forestgreen
+    (211, 211, 211, 255),  # lightgray
+    (160,  82,  45, 255),  # sienna
+    (128, 128, 128, 255),  # gray
+    ( 65, 105, 225, 255),  # royalblue
+    (135, 206, 235, 255),  # skyblue
+    (  0,   0, 139, 255),  # darkblue
+    (255, 240, 240, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255),
+    (135, 135, 135, 255)
+    ]
+
 # the path to the images
 #print (os.path.basename(__file__))
 png_path = os.path.dirname(__file__) + "/graphics/"
@@ -102,43 +139,4 @@ square = None
 # if the user has to wait until something 
 #  (usually the animation) is done
 no_user_actions = False
-
-
-pic_list = [
-    png_path + "mirrors/00_bg.png",           # background
-    png_path + "mirrors/01_normal.png",       # simple mirrors: left: \
-    png_path + "mirrors/02_normal.png",       # simple mirrors: right: /
-    png_path + "mirrors/03_flip2.png",        # simple flipping mirrors: left: \
-    png_path + "mirrors/04_flip2.png",        # simple flipping mirrors: right: /
-    png_path + "mirrors/05_flip4.png",        # quad flipping mirrors: left: \
-    png_path + "mirrors/06_flip4.png",        # quad flipping mirrors: bounce: o
-    png_path + "mirrors/07_flip4.png",        # quad flipping mirrors: right: /
-    png_path + "mirrors/08_flip4.png",        # quad flipping mirrors: bounce: o
-    png_path + "mirrors/09_block.png",        # box and sink: box: bounce: o  (reflect all)
-    png_path + "mirrors/10_sink.png",         # box and sink: sink: grab: x  (absorb all)
-    png_path + "mirrors/11_axial.png",        # axial mirrors: simple vertical: |
-    png_path + "mirrors/12_axial.png",        # axial mirrors: simple horizontal: -
-    png_path + "mirrors/13_axial2.png",       # axial mirrors: flipping vertical: ||
-    png_path + "mirrors/14_axial2.png",       # axial mirrors: flipping horizontal: =
-    png_path + "mirrors/15_rotator.png",      # rotators simple counterclockwise: left: \\
-    png_path + "mirrors/16_rotator.png",      # rotators simple clockwise: right: //
-    png_path + "mirrors/17_rotator2.png",     # rotators flipper clockwise: left: []
-    png_path + "mirrors/18_rotator2.png",     # rotators flipper counterclockwise: right: ][
-    png_path + "mirrors/19_half.png",         # 1-way mirrors: left: lower reflects: \<-
-    png_path + "mirrors/20_half.png",         # 1-way mirrors: left: upper reflects: ->\
-    png_path + "mirrors/21_half.png",         # 1-way mirrors: right: lower reflects: ->/
-    png_path + "mirrors/22_half.png",         # 1-way mirrors: right: upper reflects: /<-
-    png_path + "mirrors/23_half4.png",        # flipping 1-way mirrors: left: lower reflects: rotates clockwise: \\\<-
-    png_path + "mirrors/24_half4.png",        # flipping 1-way mirrors: right: upper reflects: rotates clockwise: ///<-
-    png_path + "mirrors/25_half4.png",        # flipping 1-way mirrors: left: upper reflects: rotates clockwise: ->\\\
-    png_path + "mirrors/26_half4.png",        # flipping 1-way mirrors: right: lower reflects: rotates clockwise: ->///
-    png_path + "mirrors/27_half4.png",        # flipping 1-way mirrors: left: upper reflects: rotates counterclockwise: ->\\\
-    png_path + "mirrors/28_half4.png",        # flipping 1-way mirrors: right: upper reflects: rotates counterclockwise: ///<-
-    png_path + "mirrors/29_half4.png",        # flipping 1-way mirrors: left: lower reflects: rotates counterclockwise: \\\<-
-    png_path + "mirrors/30_half4.png",        # flipping 1-way mirrors: right: lower reflects: rotates counterclockwise: ->///
-    png_path + "mirrors/31_move.png",         # moving mirror: left: -->\X\--> ---->\X\
-    png_path + "mirrors/32_move.png",         # moving mirror: right: <--/X/<-- /X/<----
-    png_path + "mirrors/33_bg.png"            # background
-]
-
 

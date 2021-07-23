@@ -92,11 +92,12 @@ def MyInitStuff (self):
     self.guess_active_squares_position = []
     self.board_to_window_index = []
 
-    self.game_bg_image  = pyglet.image.load(self.png_path + "mirrors/00_bg.png")
-    self.white_bg_image = pyglet.image.load(self.png_path + "backgrounds/wbg.png")
-    self.blue_bg_image  = pyglet.image.load(self.png_path + "backgrounds/bbg.png")
-    self.green_bg_image = pyglet.image.load(self.png_path + "backgrounds/lgbg.png")
-    self.gray_bg_image  = pyglet.image.load(self.png_path + "backgrounds/gbg.png")
+    # background images : gray, white, blue
+    self.game_bg_image = pyglet.image.SolidColorImagePattern(color=(211,211,211,255)).create_image(width=cfg.img_pix, height=cfg.img_pix)
+    self.white_bg_image = pyglet.image.SolidColorImagePattern(color=(255,255,255,255)).create_image(width=cfg.img_pix, height=cfg.img_pix)
+    self.blue_bg_image = pyglet.image.SolidColorImagePattern(color=(173,216,230,255)).create_image(width=cfg.img_pix, height=cfg.img_pix)
+
+    self.game_tile_image = pyglet.image.load(self.png_path + "misc/tile.png")
 
     self.gcube_image = pyglet.image.load(self.png_path + "misc/gcube.png")
     self.cube_image  = pyglet.image.load(self.png_path + "misc/cube.png")
@@ -184,9 +185,11 @@ def MyInitStuff (self):
         anim_index += 1
 
     self.spr_mv_list = []
+    sprite = pyglet.sprite.Sprite(self.game_tile_image)
+    self.spr_mv_list.append([0, self.game_tile_image, sprite, 0, 0])
 
-    for i in range(len(cfg.pic_list)):
-        image = pyglet.image.load(cfg.pic_list[i])
+    for i in range(len(cfg.color_list)):
+        image = pyglet.image.SolidColorImagePattern(color=cfg.color_list[i]).create_image(width=cfg.img_pix, height=cfg.img_pix)
         sprite = pyglet.sprite.Sprite(image)
         self.spr_mv_list.append([0, image, sprite, 0, 0])
 
