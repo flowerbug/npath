@@ -29,12 +29,14 @@ def InitRandomBoardItems (self):
     if randpop < 0:
         randpop = 0
 
+    sprite_list_length = len(self.sprite_list)
+#    print ("Length of sprite_list : ",sprite_list_length)
     while (randpop > 0):
         position = random.getrandbits(32) % self.board_squares
 #            print ("randpop, position", randpop, position)
 
         if (self.board[position][0] == 0):
-            randchance = random.getrandbits(32) % 33
+            randchance = random.getrandbits(32) % sprite_list_length
 #            print ("  randchance", randchance)
 
             if (self.board[position][0] == 0):
