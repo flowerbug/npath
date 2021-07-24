@@ -43,7 +43,6 @@ setup(
     python_requires=">=3",
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
-        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Programming Language :: Python :: 3",
         "Operating System :: POSIX :: Linux",
         "Intended Audience :: End Users/Desktop",

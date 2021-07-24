@@ -89,15 +89,28 @@ def MyInitStuff (self):
     self.guess_active_squares_position = []
     self.board_to_window_index = []
 
+
     # background images : gray, white, blue
     self.game_bg_image = pyglet.image.SolidColorImagePattern(color=(211,211,211,255)).create_image(width=cfg.img_pix, height=cfg.img_pix)
     self.white_bg_image = pyglet.image.SolidColorImagePattern(color=(255,255,255,255)).create_image(width=cfg.img_pix, height=cfg.img_pix)
     self.blue_bg_image = pyglet.image.SolidColorImagePattern(color=(173,216,230,255)).create_image(width=cfg.img_pix, height=cfg.img_pix)
 
+    # tanish tile uses color (204 150 77) 64x64 pixels
+#    self.game_tile_image = pyglet.image.SolidColorImagePattern(color=(204, 150, 77, 255)).create_image(width=cfg.img_pix, height=cfg.img_pix)
     self.game_tile_image = pyglet.image.load(self.png_path + "misc/tile.png")
+#    self.game_tile_image.save(self.png_path + "misc/tile.png")
 
+    # green cube uses color (18, 239, 0) 50x50 pixels
     self.gcube_image = pyglet.image.load(self.png_path + "misc/gcube.png")
-    self.cube_image  = pyglet.image.load(self.png_path + "misc/cube.png")
+#    self.gcube_image = pyglet.image.SolidColorImagePattern(color=(18, 239, 0, 255)).create_image(width=cfg.img_pix, height=cfg.img_pix)
+#    self.gcube_image.save(self.png_path + "misc/gcube.png")
+
+    # pink cube uses color (237, 13, 255) 34x34 pixels
+    self.cube_image = pyglet.image.load(self.png_path + "misc/cube.png")
+#    self.cube_image = pyglet.image.SolidColorImagePattern(color=(237, 13, 255, 255)).create_image(width=cfg.img_pix, height=cfg.img_pix)
+#    self.cube_image.save(self.png_path + "misc/cube.png")
+#    self.cube_image = pyglet.shapes.BorderedRectangle(0, 0, width=cfg.img_pix, height=cfg.img_pix, border=20, color=(237, 13, 255), border_color=(0, 0, 0))
+
 
     self.sprite_list = []
     sprite = pyglet.sprite.Sprite(self.game_tile_image)
