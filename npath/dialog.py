@@ -24,61 +24,7 @@ def print_cfg ():
     print ("Defaults   Borders : %-5s" %cfg.default_borders, "  Rows, Cols : ", cfg.default_game_rows, cfg.default_game_cols)
 
 
-def LoadConfigOrUseCurrent (self):
-    print("Load Config Or Use Current")
-    if (cfg.full_config_filename.exists() == True):
-        with open(cfg.full_config_filename, "r") as fn:
-            loaded_config = json.load(fn)
-            cfg.default_borders = loaded_config[1][0]
-            cfg.default_game_rows = loaded_config[1][1]
-            cfg.default_game_cols = loaded_config[1][2]
-            cfg.borders = loaded_config[2][0]
-            cfg.game_rows = loaded_config[2][1]
-            cfg.game_cols = loaded_config[2][2]
-            if (cfg.show_board != 2):
-                print("Npath Configuration Loaded")
-
-    else:
-        # current defaults are set in config.py
-        # and we don't want to clobber or reset
-        # them unless the user specifically requests it
-        if (cfg.show_board != 2):
-            print("Npath Configuration File Doesn't Exist.  The current defaults are being used instead")
-
-    cfg.show_board = 2
-
-
-def SaveConfigToFile ():
-    print("Save Config To File")
-    if (cfg.config_path.exists() != True):
-        print("Creating : ", str(cfg.config_path))
-        cfg.config_path.mkdir(mode=0o700, parents=True, exist_ok=False)
-        print("Npath No Configuration Directory Exists.  We've created " + str(cfg.config_path))
-
-    with open(cfg.full_config_filename, mode="w") as fileout:
-        json.dump([["NPATH_Config\n", 1], [cfg.default_borders, cfg.default_game_rows, cfg.default_game_cols],[cfg.borders, cfg.game_rows, cfg.game_cols]], fileout, indent = 4, separators=(',', ': '))
-
-
-def ChangeLayout(self):
-    print ("ChangeLayout")
-    cfg.borders = not cfg.borders
-    if (cfg.borders == True):
-        cfg.adj_size = 2
-    else:
-        cfg.adj_size = 0
-    ResizeBoard (self)
-    cfg.show_board = 2  # reinitialize sprites and lists
-
-
-def NewRandomGame(self):
-    print ("New Random Game")
-    cfg.new_game_rows = cfg.game_rows
-    cfg.new_game_cols = cfg.game_cols
-    cfg.new_borders = cfg.borders
-    cfg.do_random_board = True
-    cfg.show_board = 2  # reinitialize sprites and lists
-
-
+# not sure I'm keeping this yet...
 def RestoreConfigDefaults():
     print ("Restore Config Defaults")
     cfg.game_rows = cfg.default_game_rows
@@ -86,22 +32,6 @@ def RestoreConfigDefaults():
     cfg.borders = cfg.default_borders
     if (cfg.show_board != 2):
         print("Npath configuration parameters reset now using default values")
-
-
-def SimpleCheck (self):
-#    print ("Simple Check")
-    for i in range(len(self.board)):
-        if (self.board[i][0] != self.board[i][1]):
-            return (False)
-    return (True)
-
-
-def CheckBoard (self):
-    print ("Check Board")
-    if (SimpleCheck (self) == True):
-        print("You Won!  Exact match found.  You've solved the puzzle congratulations!")
-    else:
-        print("You lost, no match found.  Sorry, try again.")
 
 
 def ShowAbout (self):
@@ -116,24 +46,25 @@ def ShowAbout (self):
         + "        Open file name : " + str(cfg.this_fn_to_open) + "\n"
         + "        Save file name : " + str(cfg.this_fn_to_save) + "\n"
         + "\n"
-        + "      It keeps configuration settings in directory : " + str(cfg.config_path) + "\n"
-        + "        Configuration file name : " + cfg.config_filename + "\n"
+        + "\n"
+        + "      It keeps the configuration settings with the saved game.\n"
         + "\n")
     print_cfg()
     print(
         "\n\n"
         + "    'ESC' or 'Q'        : Quit\n"
-        + "                             Quitting DOES NOT save the Configuration or the Game\n"
+        + "                             Quitting DOES NOT save the Game\n"
         + "\n"
         + "    'F1', 'H', or '?'   : Help (this screen)\n"
         + "\n"
         + "    'F2'                : Show or Hide guesses\n"
         + "                             Only the 'Q', 'ESC', 'F1', 'H', or '?' keys will work when showing guesses\n"
         + "\n"
-        + "    'F3'                : Restore Config To Defaults\n"
-        + "    'F4'                : Load Config From File\n"
-        + "                             If no file exists use the Defaults\n"
-        + "    'F5'                : Save Config To File\n"
+        + "    'F3'                : Toggle Border\n"
+        + "\n"
+        + "\n"
+        + "    'Arrow Keys'        : Increase or Decrease Columns and Rows\n"
+        + "\n"
         + "\n"
         + "    'F6'                : Load Game From File\n"
         + "    'F7'                : Save Game To File\n"
@@ -144,19 +75,25 @@ def ShowAbout (self):
         + "    'F10'               : Check Game\n"
         + "                             To see if we've won\n"
         + "\n"
-        + "    'F11'               : Clean Up Config and Saved Game\n"
         + "\n"
-        + "\n"
-        + "    'F12'               : Toggle Border\n"
-        + "\n"
-        + "\n"
-        + "    'Arrow Keys'        : Increase or Decrease Columns and Rows\n"
+        + "    'F11'               : Delete Saved Game and Directory\n"
         + "\n"
         + "\n"
         + "    Project Location :"
         + "    https://www.github.com/flowerbug/npath\n"
         + "\n"
         )
+
+
+def ChangeLayout(self):
+    print ("ChangeLayout")
+    cfg.borders = not cfg.borders
+    if (cfg.borders == True):
+        cfg.adj_size = 2
+    else:
+        cfg.adj_size = 0
+    ResizeBoard (self)
+    cfg.show_board = 2  # reinitialize sprites and lists
 
 
 def Load_NPATHSave_Version_1 (self, lines_in):
@@ -176,8 +113,8 @@ def Load_NPATHSave_Version_1 (self, lines_in):
     print ("Load_NPATHSave_Version_1 -> new variables NewBorders NR NC NewBoard", cfg.new_borders, cfg.new_game_rows, cfg.new_game_cols, cfg.new_board)
 
 
-def LoadSavedGameFromFile (self):
-    print ("Load Saved Game From File")
+def LoadGame (self):
+    print ("Load Game")
     cfg.saved_dir = str(Path.cwd())
     print ("Keep track of current directory : ", cfg.saved_dir)
 
@@ -195,7 +132,7 @@ def LoadSavedGameFromFile (self):
     os.chdir(str(cfg.data_path))
 
     if (cfg.this_fn_to_open == None):
-        print ("LoadSavedGameFromFile...  No file selected...")
+        print ("LoadGame...  No file selected...")
         os.chdir(cfg.saved_dir)
         return
 
@@ -213,8 +150,8 @@ def LoadSavedGameFromFile (self):
     print_cfg()
 
 
-def SaveGameToFile (self):
-    print ("Save Game To File")
+def SaveGame (self):
+    print ("Save Game")
     cfg.saved_dir = str(Path.cwd())
 #    print ("Keep track of current directory : ", cfg.saved_dir)
 
@@ -235,8 +172,31 @@ def SaveGameToFile (self):
     os.chdir(cfg.saved_dir)
 
 
-def CleanUpConfigAndSavedGame ():
-    print ("Clean Up Config And Saved Game")
+def NewRandomGame(self):
+    print ("New Random Game")
+    cfg.new_game_rows = cfg.game_rows
+    cfg.new_game_cols = cfg.game_cols
+    cfg.new_borders = cfg.borders
+    cfg.do_random_board = True
+    cfg.show_board = 2  # reinitialize sprites and lists
+def SimpleCheck (self):
+#    print ("Simple Check")
+    for i in range(len(self.board)):
+        if (self.board[i][0] != self.board[i][1]):
+            return (False)
+    return (True)
+
+
+def CheckBoard (self):
+    print ("Check Board")
+    if (SimpleCheck (self) == True):
+        print("You Won!  Exact match found.  You've solved the puzzle congratulations!")
+    else:
+        print("You lost, no match found.  Sorry, try again.")
+
+
+def DeleteSavedGame ():
+    print ("Delete Saved Game")
     cfg.saved_dir = str(Path.cwd())
     #print ("Keep track of current directory : ", cfg.saved_dir)
 
@@ -275,4 +235,5 @@ def CleanUpConfigAndSavedGame ():
         os.rmdir(str(cfg.config_path))
 
     os.chdir(str(cfg.saved_dir))
+
 

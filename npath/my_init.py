@@ -12,7 +12,7 @@ import pyglet
 import config as cfg
 
 from board import ResizeBoard
-from dialog import LoadConfigOrUseCurrent
+from dialog import LoadGame
 
 
 def MyInitStuff (self):
@@ -40,14 +40,24 @@ def MyInitStuff (self):
     # to see it until it is resized later
     self.windows_lst[0].set_visible(False)
 
-    # if there's a config file use it
-    #  if there isn't set defaults specified in config.py
-    LoadConfigOrUseCurrent (self)
+
+    # set some defaults but LoadGame may change these
+    cfg.game_rows = cfg.default_game_rows
+    cfg.game_cols = cfg.default_game_cols
+    cfg.borders = cfg.default_borders
+    
+    # if there is a game saved use it
+    LoadGame (self)
+
+    if (cfg.borders == True):
+        cfg.adj_size = 2
+    else:
+        cfg.adj_size = 0
 
     # other useful constants
     self.board_squares = cfg.game_rows*cfg.game_cols
-    self.window_cols = (cfg.game_cols+2)
-    self.window_rows = (cfg.game_rows+2)
+    self.window_rows = (cfg.game_rows+cfg.adj_size)
+    self.window_cols = (cfg.game_cols+cfg.adj_size)
     self.window_squares = self.window_rows*self.window_cols
 
     ResizeBoard (self)

@@ -11,7 +11,7 @@ import config as cfg
 
 from active import ActiveAreaLeftMouseClickAction, ActiveAreaRightMouseClickAction, ActiveAreaMouseMoveAction
 from board import DrawBoard, RestartGame
-from dialog import ChangeLayout, CheckBoard, CleanUpConfigAndSavedGame, LoadConfigOrUseCurrent, LoadSavedGameFromFile, NewRandomGame, RestoreConfigDefaults, SaveConfigToFile, SaveGameToFile, ShowAbout
+from dialog import ChangeLayout, CheckBoard, DeleteSavedGame, LoadGame, NewRandomGame, RestoreConfigDefaults, SaveGame, ShowAbout
 from my_init import MyInitStuff
 from version import GetVersion
 
@@ -134,34 +134,25 @@ class Window(pyglet.window.Window):
 #            print ("The 'F2' key was pressed, show board changed to ", cfg.show_board)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F3)):
             print ("The 'F3' key was pressed")
-            RestoreConfigDefaults()
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F4)):
-            print ("The 'F4' key was pressed")
-            LoadConfigOrUseCurrent(self)
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F5)):
-            print ("The 'F5' key was pressed")
-            SaveConfigToFile()
+            ChangeLayout (self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F6)):
             print ("The 'F6' key was pressed")
-            LoadSavedGameFromFile(self)
+            LoadGame (self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F7)):
             print ("The 'F7' key was pressed")
-            SaveGameToFile(self)
+            SaveGame (self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F8)):
             print ("The 'F8' key was pressed")
-            NewRandomGame(self)
+            NewRandomGame (self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F9)):
             print ("The 'F9' key was pressed")
-            RestartGame(self)
+            RestartGame (self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F10)):
             print ("The 'F10' key was pressed")
-            CheckBoard(self)
+            CheckBoard (self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F11)):
             print ("The 'F11' key was pressed")
-            CleanUpConfigAndSavedGame()
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F12)):
-            print ("The 'F12' key was pressed")
-            ChangeLayout(self)
+            DeleteSavedGame ()
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.LEFT)):
             if cfg.game_cols > cfg.min_cols:
                 cfg.game_rows = cfg.game_rows
