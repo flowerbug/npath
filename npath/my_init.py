@@ -11,6 +11,7 @@ import pyglet
 
 import config as cfg
 
+from board import ResizeBoard
 from dialog import LoadConfigOrUseCurrent
 
 
@@ -41,13 +42,15 @@ def MyInitStuff (self):
 
     # if there's a config file use it
     #  if there isn't set defaults specified in config.py
-    LoadConfigOrUseCurrent ()
+    LoadConfigOrUseCurrent (self)
 
     # other useful constants
     self.board_squares = cfg.game_rows*cfg.game_cols
     self.window_cols = (cfg.game_cols+2)
     self.window_rows = (cfg.game_rows+2)
     self.window_squares = self.window_rows*self.window_cols
+
+    ResizeBoard (self)
 
     self.game_board_x_limit = 0
     self.game_board_y_limit = 0
@@ -90,8 +93,7 @@ def MyInitStuff (self):
     self.board_to_window_index = []
 
 
-    # background images : gray, white, blue
-    self.game_bg_image = pyglet.image.SolidColorImagePattern(color=(211,211,211,255)).create_image(width=cfg.img_pix, height=cfg.img_pix)
+    # background images : white, blue
     self.white_bg_image = pyglet.image.SolidColorImagePattern(color=(255,255,255,255)).create_image(width=cfg.img_pix, height=cfg.img_pix)
     self.blue_bg_image = pyglet.image.SolidColorImagePattern(color=(173,216,230,255)).create_image(width=cfg.img_pix, height=cfg.img_pix)
 
@@ -120,3 +122,14 @@ def MyInitStuff (self):
         sprite = pyglet.sprite.Sprite(image)
         self.sprite_list.append([0, image, sprite, 0, 0])
 
+    # put the gcube and cube someplace.
+    # i may not need these eventually so not going to make this
+    # a function for now...
+    x_pos = 0
+    y_pos = 0
+    self.gcube = pyglet.sprite.Sprite( self.gcube_image, batch=self.pointer_bottom_batch, x = x_pos, y = y_pos)
+    self.gcube.visible = False
+    self.top_sprites.append(self.gcube)
+    self.cube = pyglet.sprite.Sprite( self.cube_image, batch=self.pointer_top_batch, x = x_pos, y = y_pos)
+    self.cube.visible = False
+    self.top_sprites.append(self.cube)
