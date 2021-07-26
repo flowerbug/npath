@@ -25,7 +25,7 @@ def RestartGame (self):
     # make any guess sprites look like the background
     if (len(self.guess_sprites) != 0):
         for j in range(len(self.guess_sprites)):
-            self.guess_sprites[j].image = self.game_bg_image
+            self.guess_sprites[j].image = self.game_tile_image
 
 
 def ClearAndResizeBoard (self):
@@ -36,9 +36,15 @@ def ClearAndResizeBoard (self):
 
     # use the current cfg values
     self.board_squares = cfg.game_rows*cfg.game_cols
-    self.window_rows = (cfg.game_rows+2)
-    self.window_cols = (cfg.game_cols+2)
+    self.window_rows = (cfg.game_rows+cfg.adj_size)
+    self.window_cols = (cfg.game_cols+cfg.adj_size)
     self.window_squares = self.window_rows*self.window_cols
+
+    # have to have at least one
+    if (self.window_squares < 1):
+        self.window_cols = 1
+        self.window_rows = 1
+        self.window_squares = 1
 
     # adjust the main window size to fit
 
@@ -68,12 +74,6 @@ def ClearAndResizeBoard (self):
 
     self.board = [[0 for i in range(2)] for j in range(self.board_squares)]
 
-    # move the gcube
-    try:
-        self.gcube.x = cfg.img_pix * (cfg.game_cols+1)
-    except:
-        pass
-
 
 def DrawBoard (self):
 
@@ -89,20 +89,6 @@ def DrawBoard (self):
             del self.fixed_sprites
             self.fixed_sprites = []
 
-        if (len(self.fixed_board_sprites) != 0):
-            for j in range(len(self.fixed_board_sprites)):
-                #self.fixed_board_sprites[j].visible = False
-                self.fixed_board_sprites[j].delete()
-            del self.fixed_board_sprites
-            self.fixed_board_sprites = []
-
-        if (len(self.board_sprites) != 0):
-            for j in range(len(self.board_sprites)):
-                #self.board_sprites[j].visible = False
-                self.board_sprites[j].delete()
-            del self.board_sprites
-            self.board_sprites = []
-
         if (len(self.white_active_squares) != 0):
             del self.white_active_squares
             self.white_active_squares = []
@@ -110,6 +96,13 @@ def DrawBoard (self):
         if (len(self.white_active_squares_position) != 0):
             del self.white_active_squares_position
             self.white_active_squares_position = []
+
+        if (len(self.board_sprites) != 0):
+            for j in range(len(self.board_sprites)):
+                #self.board_sprites[j].visible = False
+                self.board_sprites[j].delete()
+            del self.board_sprites
+            self.board_sprites = []
 
         if (len(self.guess_sprites) != 0):
             for j in range(len(self.guess_sprites)):
@@ -136,7 +129,8 @@ def DrawBoard (self):
 
             ClearAndResizeBoard (self)
             InitRandomBoardItems (self)
-            DrawBordersAndBackgrounds (self)
+            if (cfg.borders == True):
+                DrawBordersAndBackgrounds (self)
             cfg.do_random_board = False
         else:
             # it's a newly loaded board
@@ -144,29 +138,37 @@ def DrawBoard (self):
 
             cfg.game_cols = cfg.new_game_cols
             cfg.game_rows = cfg.new_game_rows
+            cfg.borders = cfg.new_borders
             # we use ClearAndResizeBoard to put the window on
             # the screen in the right spot
             ClearAndResizeBoard (self)
             del self.board
             self.board = copy.deepcopy(cfg.new_board)
-            DrawBordersAndBackgrounds (self)
+            if (cfg.borders == True):
+                DrawBordersAndBackgrounds (self)
 
         # draw game grid
 #        print ("DrawBoard show board 2", cfg.show_board)
 #        print ("DrawBoard initial board start", self.board)
-        y_pos = cfg.img_pix
-        x_pos = cfg.img_pix
-        self.game_board_x_lower_limit = x_pos
-        self.game_board_y_lower_limit = y_pos
-#       win_pos = ((self.window_rows - 2) * self.window_cols) + 1
-        win_pos = self.window_cols + 1
+        if (cfg.borders == True):
+            y_pos = cfg.img_pix
+            x_pos = cfg.img_pix
+            self.game_board_x_lower_limit = x_pos
+            self.game_board_y_lower_limit = y_pos
+            win_pos = self.window_cols + 1
+        else:
+            y_pos = 0
+            x_pos = 0
+            self.game_board_x_lower_limit = x_pos
+            self.game_board_y_lower_limit = y_pos
+            win_pos = 0
+
 
         for x in range(cfg.game_rows):
             x_pos = self.game_board_x_lower_limit
             for y in range(cfg.game_cols):
                 board_position = (cfg.game_cols * x) + y
-#                print ("BP WP x y: ", board_position, win_pos, x, y)
-                self.fixed_board_sprites.append( pyglet.sprite.Sprite( self.game_bg_image, batch=self.fixed_board_batch, x = x_pos, y = y_pos))
+                print ("BP WP x y: ", board_position, win_pos, x, y)
                 image = self.sprite_list[self.board[board_position][0]][1]
                 self.board_sprites.append( pyglet.sprite.Sprite( image, batch=self.variable_board_batch, x = x_pos, y = y_pos))
                 image = self.sprite_list[self.board[board_position][1]][1]
@@ -177,7 +179,8 @@ def DrawBoard (self):
                 x_pos += cfg.img_pix
                 win_pos += 1
             y_pos += cfg.img_pix
-            win_pos += 2
+            if (cfg.borders == True):
+               win_pos += 2
         self.game_board_x_upper_limit = x_pos
         self.game_board_y_upper_limit = y_pos
         cfg.show_board = 1

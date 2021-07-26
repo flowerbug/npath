@@ -18,6 +18,8 @@
 
   Version 0.4.0 is still not playable as a game.  I started to remove the previous images which are used to play the game this framework is taken from.  Version 0.4.1 updates this README.  Version 0.4.2 removes the old images and code that aren't used by anything (only cube and gcube are left).  Version 0.4.3 replaces cube and gcube so now all previous images are gone so everything now can go under the Apache License.
 
+  Version 0.5.0 makes the border and the white active border squares optional.  F12 toggles between views with and without borders.  Saving and Loading boards now include the borders flag.  This is not complete yet, so some bugs remain.
+
 
 # The next versions will be aiming towards
 

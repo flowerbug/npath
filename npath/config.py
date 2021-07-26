@@ -8,7 +8,6 @@ import json
 from pathlib import Path, PurePath
 import os
 
-
 # colors
 color_list = [
     (  0,   0,   0, 255),  # black
@@ -102,6 +101,7 @@ else:
 # these.
 new_game_cols = None
 new_game_rows = None
+new_borders = None
 new_board = None
 
 
@@ -115,10 +115,20 @@ show_board = 2
 do_random_board = True
 
 
+# options which affect board layout and size below
+# and also the display of some sprites
+borders = True
+if (borders == True):
+    adj_size = 2
+else:
+    adj_size = 0
+
+default_borders = True
+
 # current, default and changed parameters
 
-min_cols = 0     # this actually works
-min_rows = 0     # 
+min_cols = 1     # must be 1 or greater
+min_rows = 1     # 
 
 max_cols = 50    # for temporary testing
 max_rows = 50    #

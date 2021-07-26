@@ -11,7 +11,7 @@ import config as cfg
 
 from active import ActiveAreaLeftMouseClickAction, ActiveAreaRightMouseClickAction, ActiveAreaMouseMoveAction
 from board import DrawBoard, RestartGame, ClearAndResizeBoard
-from dialog import CheckBoard, CleanUpConfigAndSavedGame, LoadConfigOrUseCurrent, LoadSavedGameFromFile, NewRandomGame, RestoreConfigDefaults, SaveConfigToFile, SaveGameToFile, ShowAbout
+from dialog import ChangeLayout, CheckBoard, CleanUpConfigAndSavedGame, LoadConfigOrUseCurrent, LoadSavedGameFromFile, NewRandomGame, RestoreConfigDefaults, SaveConfigToFile, SaveGameToFile, ShowAbout
 from my_init import MyInitStuff
 from version import GetVersion
 
@@ -38,20 +38,6 @@ class Window(pyglet.window.Window):
         print("Npath version  : ", GetVersion())
 
         MyInitStuff (self)
-
-        # put the gcube and cube someplace.
-        # i may not need these eventually so not going to make this
-        # a function for now...
-        x_pos = cfg.img_pix * (cfg.game_cols+1)
-        y_pos = 0
-        self.gcube = pyglet.sprite.Sprite( self.gcube_image, batch=self.pointer_bottom_batch, x = x_pos, y = y_pos)
-        self.gcube.visible = False
-        self.top_sprites.append(self.gcube)
-        x_pos = 0
-        y_pos = 0
-        self.cube = pyglet.sprite.Sprite( self.cube_image, batch=self.pointer_top_batch, x = x_pos, y = y_pos)
-        self.cube.visible = False
-        self.top_sprites.append(self.cube)
 
 
     def on_draw(self):
@@ -147,23 +133,35 @@ class Window(pyglet.window.Window):
                 self.gcube.visible = True
 #            print ("The 'F2' key was pressed, show board changed to ", cfg.show_board)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F3)):
+            print ("The 'F3' key was pressed")
             RestoreConfigDefaults()
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F4)):
+            print ("The 'F4' key was pressed")
             LoadConfigOrUseCurrent()
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F5)):
+            print ("The 'F5' key was pressed")
             SaveConfigToFile()
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F6)):
+            print ("The 'F6' key was pressed")
             LoadSavedGameFromFile(self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F7)):
+            print ("The 'F7' key was pressed")
             SaveGameToFile(self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F8)):
+            print ("The 'F8' key was pressed")
             NewRandomGame(self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F9)):
+            print ("The 'F9' key was pressed")
             RestartGame(self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F10)):
+            print ("The 'F10' key was pressed")
             CheckBoard(self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F11)):
+            print ("The 'F11' key was pressed")
             CleanUpConfigAndSavedGame()
+        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F12)):
+            print ("The 'F12' key was pressed")
+            ChangeLayout(self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.LEFT)):
             if cfg.game_cols > cfg.min_cols:
                 cfg.game_cols = cfg.game_cols - 1
@@ -225,7 +223,7 @@ class Window(pyglet.window.Window):
 
 
 def main():
-    window = Window(width=cfg.img_pix*(cfg.game_cols+2), height=cfg.img_pix*(cfg.game_rows+2), caption="Npath", resizable=True, fullscreen=False, visible=False)
+    window = Window(width=cfg.img_pix*(cfg.game_cols+cfg.adj_size), height=cfg.img_pix*(cfg.game_rows+cfg.adj_size), caption="Npath", resizable=True, fullscreen=False, visible=False)
     pyglet.clock.schedule_interval(window.update, 1/120.0) # update at 60Hz
     pyglet.app.run()
 
