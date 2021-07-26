@@ -1,12 +1,8 @@
 # General Information
 
-  This is a project to take an old game that I converted to python, pyglet and gtk3 and change it into a more general framework for a variable sized grid.  Since all of the licensed old copyrighted materials will be removed eventually I will just point people to the old version that includes all the licenses for the old artwork.
-
-  That old version is at https://www.github.com/flowerbug/ngfp which is based upon a game called gfpoken.
+  This is a project to take an old game that I converted from C to python, pyglet and gtk3 and change it into a more general framework for a variable sized grid.  I've removed the previously licensed artwork and gtk so that this is entirely now under just the Apache license.  I've also been simplifying the code and removing extra things that aren't really needed.
 
   As usual this is mainly something I'm doing to improve my python programming and to learn more about pyglet.
-
-  If you go back in versions to checkout npath-v0.0.0 you will see it is a somewhat edited version of ngfp which has been changed only to change the name and some module imports.
 
   Version 0.0.1 tests how low the minimum row and column sizes work and as it turns out the game still works at 0 rows and columns even if it doesn't do anything interesting.  A 1 row by 1 column game is playable but silly and some of the menus on the right are chopped off.  The minimum playable simple game with fully visible menus is 6 rows and 1 column.  This is only temporary as the menu and widget piles are coming out.
 
@@ -20,8 +16,12 @@
 
   Version 0.5.0 makes the border and the white active border squares optional.  F12 toggles between views with and without borders.  Saving and Loading boards now include the borders flag as also does the configuration file when it is saved.  Version 0.5.1 continues working on fixing bugs.  This is not complete yet, so some bugs remain and I've decided I'm not going to completely debug this version because I plan on redoing more of the board drawing and parameters and such in a more object oriented fashion.  This is a lot more complicated than it needs to be.
 
+  Version 0.6.0 is one step further of simplification.  There is not big need for a configuration file for the game.  Save the board sizes and border flag with the board itself.  If there isn't a board saved to start with when the game starts use the built in defaults.
+
 
 # The next versions will be aiming towards
+
+  More OOP concepts.
 
   Resizing tiles.
 
