@@ -10,7 +10,7 @@ from pyglet import clock
 import config as cfg
 
 from active import ActiveAreaLeftMouseClickAction, ActiveAreaRightMouseClickAction, ActiveAreaMouseMoveAction
-from board import DrawBoard, RestartGame, ClearAndResizeBoard
+from board import DrawBoard, RestartGame
 from dialog import ChangeLayout, CheckBoard, CleanUpConfigAndSavedGame, LoadConfigOrUseCurrent, LoadSavedGameFromFile, NewRandomGame, RestoreConfigDefaults, SaveConfigToFile, SaveGameToFile, ShowAbout
 from my_init import MyInitStuff
 from version import GetVersion
@@ -137,7 +137,7 @@ class Window(pyglet.window.Window):
             RestoreConfigDefaults()
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F4)):
             print ("The 'F4' key was pressed")
-            LoadConfigOrUseCurrent()
+            LoadConfigOrUseCurrent(self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F5)):
             print ("The 'F5' key was pressed")
             SaveConfigToFile()
@@ -164,15 +164,15 @@ class Window(pyglet.window.Window):
             ChangeLayout(self)
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.LEFT)):
             if cfg.game_cols > cfg.min_cols:
-                cfg.game_cols = cfg.game_cols - 1
                 cfg.game_rows = cfg.game_rows
+                cfg.game_cols = cfg.game_cols - 1
                 cfg.show_board = 2  # reinitialize sprites and lists
                 cfg.do_random_board = True
             print ("The 'LEFT' key was pressed")
         elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.RIGHT)):
             if cfg.game_cols < cfg.max_cols:
-                cfg.game_cols = cfg.game_cols + 1
                 cfg.game_rows = cfg.game_rows
+                cfg.game_cols = cfg.game_cols + 1
                 cfg.show_board = 2  # reinitialize sprites and lists
                 cfg.do_random_board = True
             print ("The 'RIGHT' key was pressed")
@@ -223,7 +223,7 @@ class Window(pyglet.window.Window):
 
 
 def main():
-    window = Window(width=cfg.img_pix*(cfg.game_cols+cfg.adj_size), height=cfg.img_pix*(cfg.game_rows+cfg.adj_size), caption="Npath", resizable=True, fullscreen=False, visible=False)
+    window = Window(width=1, height=1, caption="Npath", resizable=True, fullscreen=False, visible=False)
     pyglet.clock.schedule_interval(window.update, 1/120.0) # update at 60Hz
     pyglet.app.run()
 

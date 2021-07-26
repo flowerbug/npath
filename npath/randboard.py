@@ -15,14 +15,14 @@ import config as cfg
 
 def InitRandomBoardItems (self):
 
-    # these will come from configuration file eventually...
     gridx = cfg.game_cols
     gridy = cfg.game_rows
 
-    randpop = 0
+    randpop = 1
     if ((self.board_squares != 0) and (self.board_squares >= 2)):
         randpop = random.getrandbits(32) % (self.board_squares // 2)
 
+    # self.board_squares should always be at least 1
     if (randpop > self.board_squares):
         randpop = self.board_squares
 

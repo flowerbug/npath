@@ -11,6 +11,7 @@ import pyglet
 
 import config as cfg
 
+from board import ResizeBoard
 from dialog import LoadConfigOrUseCurrent
 
 
@@ -41,13 +42,15 @@ def MyInitStuff (self):
 
     # if there's a config file use it
     #  if there isn't set defaults specified in config.py
-    LoadConfigOrUseCurrent ()
+    LoadConfigOrUseCurrent (self)
 
     # other useful constants
     self.board_squares = cfg.game_rows*cfg.game_cols
     self.window_cols = (cfg.game_cols+2)
     self.window_rows = (cfg.game_rows+2)
     self.window_squares = self.window_rows*self.window_cols
+
+    ResizeBoard (self)
 
     self.game_board_x_limit = 0
     self.game_board_y_limit = 0

@@ -8,6 +8,12 @@ import json
 from pathlib import Path, PurePath
 import os
 
+
+# Important reminder : these values and expressions are loaded and evaluated 
+#                      once when the program is started.  After that they 
+#                      are changed in the various functions.
+
+
 # colors
 color_list = [
     (  0,   0,   0, 255),  # black
@@ -99,8 +105,8 @@ else:
 # these spots so that DrawBoard can use them.
 # changing dimensions in the config dialog also uses
 # these.
-new_game_cols = None
 new_game_rows = None
+new_game_cols = None
 new_borders = None
 new_board = None
 
@@ -127,20 +133,20 @@ default_borders = True
 
 # current, default and changed parameters
 
-min_cols = 1     # must be 1 or greater
-min_rows = 1     # 
+min_rows = 1     # must be 1 or greater
+min_cols = 1     #
 
-max_cols = 50    # for temporary testing
-max_rows = 50    #
+max_rows = 50    # for temporary testing
+max_cols = 50    #
 
-#max_cols = 28     # on 1920 x 1080
 #max_rows = 13     # on 1920 x 1080
+#max_cols = 28     #
 
-game_cols = 2     # width
 game_rows = 2     # height
+game_cols = 2     # width
 
-default_game_cols = 4     # width
 default_game_rows = 4     # height
+default_game_cols = 4     # width
 
 
 # need to keep track of the current square

@@ -12,28 +12,29 @@ from pathlib import Path
 
 import config as cfg
 
-from board import ClearAndResizeBoard
+from board import ClearBoard, ResizeBoard
 from version import GetVersion
 
 
 # print configuration parameters
 def print_cfg ():
     print ("Config Values")
-    print ("Current    Borders : %-5s" %cfg.borders, "  Cols, Rows : ", cfg.game_cols, cfg.game_rows)
-    print ("New        Borders : %-5s" %cfg.new_borders, "  Cols, Rows : ", cfg.new_game_cols, cfg.new_game_rows)
-    print ("Defaults   Borders : %-5s" %cfg.default_borders, "  Cols, Rows : ", cfg.default_game_cols, cfg.default_game_rows)
+    print ("Current    Borders : %-5s" %cfg.borders, "  Rows, Cols : ", cfg.game_rows, cfg.game_cols)
+    print ("New        Borders : %-5s" %cfg.new_borders, "  Rows, Cols : ", cfg.new_game_rows, cfg.new_game_cols)
+    print ("Defaults   Borders : %-5s" %cfg.default_borders, "  Rows, Cols : ", cfg.default_game_rows, cfg.default_game_cols)
 
 
-def LoadConfigOrUseCurrent ():
+def LoadConfigOrUseCurrent (self):
     print("Load Config Or Use Current")
     if (cfg.full_config_filename.exists() == True):
         with open(cfg.full_config_filename, "r") as fn:
             loaded_config = json.load(fn)
-            cfg.default_game_cols = loaded_config[1][0]
+            cfg.default_borders = loaded_config[1][0]
             cfg.default_game_rows = loaded_config[1][1]
-            cfg.default_borders = loaded_config[1][2]
-            cfg.game_cols = loaded_config[2][0]
+            cfg.default_game_cols = loaded_config[1][2]
+            cfg.borders = loaded_config[2][0]
             cfg.game_rows = loaded_config[2][1]
+            cfg.game_cols = loaded_config[2][2]
             if (cfg.show_board != 2):
                 print("Npath Configuration Loaded")
 
@@ -44,6 +45,7 @@ def LoadConfigOrUseCurrent ():
         if (cfg.show_board != 2):
             print("Npath Configuration File Doesn't Exist.  The current defaults are being used instead")
 
+    cfg.show_board = 2
 
 
 def SaveConfigToFile ():
@@ -54,7 +56,7 @@ def SaveConfigToFile ():
         print("Npath No Configuration Directory Exists.  We've created " + str(cfg.config_path))
 
     with open(cfg.full_config_filename, mode="w") as fileout:
-        json.dump([["NPATH_Config\n", 1], [cfg.default_game_cols, cfg.default_game_rows, cfg.default_borders],[cfg.game_cols, cfg.game_rows, cfg.borders]], fileout, indent = 4, separators=(',', ': '))
+        json.dump([["NPATH_Config\n", 1], [cfg.default_borders, cfg.default_game_rows, cfg.default_game_cols],[cfg.borders, cfg.game_rows, cfg.game_cols]], fileout, indent = 4, separators=(',', ': '))
 
 
 def ChangeLayout(self):
@@ -64,24 +66,23 @@ def ChangeLayout(self):
         cfg.adj_size = 2
     else:
         cfg.adj_size = 0
+    ResizeBoard (self)
     cfg.show_board = 2  # reinitialize sprites and lists
-    cfg.do_random_board = True
 
 
 def NewRandomGame(self):
     print ("New Random Game")
-    cfg.show_board = 2  # reinitialize sprites and lists
-    cfg.do_random_board = True
-    cfg.new_game_cols = cfg.game_cols
     cfg.new_game_rows = cfg.game_rows
+    cfg.new_game_cols = cfg.game_cols
     cfg.new_borders = cfg.borders
-#        print_cfg ()
+    cfg.do_random_board = True
+    cfg.show_board = 2  # reinitialize sprites and lists
 
 
 def RestoreConfigDefaults():
     print ("Restore Config Defaults")
-    cfg.game_cols = cfg.default_game_cols
     cfg.game_rows = cfg.default_game_rows
+    cfg.game_cols = cfg.default_game_cols
     cfg.borders = cfg.default_borders
     if (cfg.show_board != 2):
         print("Npath configuration parameters reset now using default values")
@@ -161,8 +162,8 @@ def ShowAbout (self):
 def Load_NPATHSave_Version_1 (self, lines_in):
 
     cfg.new_borders = lines_in[1][0]
-    cfg.new_game_cols = lines_in[1][1]
-    cfg.new_game_rows = lines_in[1][2]
+    cfg.new_game_rows = lines_in[1][1]
+    cfg.new_game_cols = lines_in[1][2]
 
     cfg.new_board = []
     cfg.new_board = copy.deepcopy(lines_in[2])
@@ -172,7 +173,7 @@ def Load_NPATHSave_Version_1 (self, lines_in):
     cfg.show_board = 2
     cfg.do_random_board = False
 
-    print ("Load_NPATHSave_Version_1 -> new variables NB NC NR NewBoard", cfg.new_borders, cfg.new_game_cols, cfg.new_game_rows, cfg.new_board)
+    print ("Load_NPATHSave_Version_1 -> new variables NewBorders NR NC NewBoard", cfg.new_borders, cfg.new_game_rows, cfg.new_game_cols, cfg.new_board)
 
 
 def LoadSavedGameFromFile (self):
@@ -227,7 +228,7 @@ def SaveGameToFile (self):
     print ("Saving Game to File : ", cfg.this_fn_to_save)
     with open(cfg.this_fn_to_save, mode="w") as fileout:
 
-        json.dump([["NPATH_Save\n", 1], [cfg.borders, cfg.game_cols, cfg.game_rows], self.board], fileout, indent = 4, separators=(',', ': '))
+        json.dump([["NPATH_Save\n", 1], [cfg.borders, cfg.game_rows, cfg.game_cols], self.board], fileout, indent = 4, separators=(',', ': '))
 
     cfg.this_fn_to_open = cfg.this_fn_to_save
 #    print ("Going back to directory : ", cfg.saved_dir)
