@@ -6,29 +6,27 @@
 import pyglet
 import sys
 
-import config as cfg
 
-
-def DoLeftClickWhiteAction (self, x, x_rec, y, y_rec, win_pos):
+def DoLeftClickAction (self, x, x_rec, y, y_rec, win_pos):
 
     pass
 
 
 def ActiveAreaLeftMouseClickAction (self, x, x_rec, y, y_rec, win_pos):
 
-    cfg.square = win_pos
-    if (cfg.show_board == 1):
+    self.square = win_pos
+    if (self.show_board == 1):
         if (win_pos in self.white_active_squares):
 #            print ("selected ", win_pos, " which is an active White square.")
-            DoLeftClickWhiteAction (self, x, x_rec, y, y_rec, win_pos)
+            DoLeftClickAction (self, x, x_rec, y, y_rec, win_pos)
         else:
             pass
 
 
 def ActiveAreaRightMouseClickAction (self, x, x_rec, y, y_rec, win_pos):
 
-    cfg.square = win_pos
-    if (cfg.show_board == 1):
+    self.square = win_pos
+    if (self.show_board == 1):
         if (win_pos in self.white_active_squares):
 #            print ("selected ", win_pos, " which is an active White square.")
             pass
