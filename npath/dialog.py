@@ -10,27 +10,24 @@ import copy
 import json
 from pathlib import Path
 
-import config as cfg
-
 from board import ClearBoard, ResizeBoard
 from version import GetVersion
 
 
 # print configuration parameters
-def print_cfg ():
+def print_cfg (self):
     print ("Config Values")
-    print ("Current    Borders : %-5s" %cfg.borders, "  Rows, Cols : ", cfg.game_rows, cfg.game_cols)
-    print ("New        Borders : %-5s" %cfg.new_borders, "  Rows, Cols : ", cfg.new_game_rows, cfg.new_game_cols)
-    print ("Defaults   Borders : %-5s" %cfg.default_borders, "  Rows, Cols : ", cfg.default_game_rows, cfg.default_game_cols)
+    print ("Current    Rows, Cols : ", self.game_rows, self.game_cols)
+    print ("New        Rows, Cols : ", self.new_game_rows, self.new_game_cols)
+    print ("Defaults   Rows, Cols : ", self.default_game_rows, self.default_game_cols)
 
 
 # not sure I'm keeping this yet...
-def RestoreConfigDefaults():
+def RestoreConfigDefaults(self):
     print ("Restore Config Defaults")
-    cfg.game_rows = cfg.default_game_rows
-    cfg.game_cols = cfg.default_game_cols
-    cfg.borders = cfg.default_borders
-    if (cfg.show_board != 2):
+    self.game_rows = self.default_game_rows
+    self.game_cols = self.default_game_cols
+    if (self.show_board != 2):
         print("Npath configuration parameters reset now using default values")
 
 
@@ -39,17 +36,17 @@ def ShowAbout (self):
         "\n    Npath is running in directory : " + str(Path.cwd()) + "\n"
         "    Npath code is running from directory : " + os.path.dirname(__file__) + "\n"
         + "\n"
-        + "      It saves game files to directory : " + str(cfg.data_path) + "\n"
+        + "      It saves game files to directory : " + str(self.data_path) + "\n"
         + "\n"
         "    Npath Version is : " + GetVersion() + "\n"
         + "\n"
-        + "        Open file name : " + str(cfg.this_fn_to_open) + "\n"
-        + "        Save file name : " + str(cfg.this_fn_to_save) + "\n"
+        + "        Open file name : " + str(self.this_fn_to_open) + "\n"
+        + "        Save file name : " + str(self.this_fn_to_save) + "\n"
         + "\n"
         + "\n"
         + "      It keeps the configuration settings with the saved game.\n"
         + "\n")
-    print_cfg()
+    print_cfg(self)
     print(
         "\n\n"
         + "    'ESC' or 'Q'        : Quit\n"
@@ -87,98 +84,91 @@ def ShowAbout (self):
 
 def ChangeLayout(self):
     print ("ChangeLayout")
-    cfg.borders = not cfg.borders
-    if (cfg.borders == True):
-        cfg.adj_size = 2
-    else:
-        cfg.adj_size = 0
-    ResizeBoard (self)
-    cfg.show_board = 2  # reinitialize sprites and lists
 
 
 def Load_NPATHSave_Version_1 (self, lines_in):
 
-    cfg.new_borders = lines_in[1][0]
-    cfg.new_game_rows = lines_in[1][1]
-    cfg.new_game_cols = lines_in[1][2]
+    self.new_game_rows = lines_in[1][0]
+    self.new_game_cols = lines_in[1][1]
 
-    cfg.new_board = []
-    cfg.new_board = copy.deepcopy(lines_in[2])
+    self.new_board = []
+    self.new_board = copy.deepcopy(lines_in[2])
 
     # we're going to have to redraw the board
     # but we aren't a random board
-    cfg.show_board = 2
-    cfg.do_random_board = False
+    self.show_board = 2
+    self.do_random_board = False
 
-    print ("Load_NPATHSave_Version_1 -> new variables NewBorders NR NC NewBoard", cfg.new_borders, cfg.new_game_rows, cfg.new_game_cols, cfg.new_board)
+    print ("Load_NPATHSave_Version_1 -> new variables NR NC NewBoard", self.new_game_rows, self.new_game_cols, self.new_board)
 
 
 def LoadGame (self):
     print ("Load Game")
-    cfg.saved_dir = str(Path.cwd())
-    print ("Keep track of current directory : ", cfg.saved_dir)
+    self.saved_dir = str(Path.cwd())
+    #print ("Keep track of current directory : ", self.saved_dir)
 
     # check for saved games directory
-    if (cfg.data_path.exists() != True):
-        print("Npath Save Game Directory Missing.  You haven't created : " + str(cfg.data_path) + " yet")
+    if (self.data_path.exists() != True):
+        #print("Npath Save Game Directory Missing.  You haven't created : " + str(self.data_path) + " yet")
         return
 
     # is there anything in there?
-    if (len(os.listdir(path=str(cfg.data_path))) == 0):
-        print("Npath Save Game Directory Is Empty.")
+    if (len(os.listdir(path=str(self.data_path))) == 0):
+        #print("Npath Save Game Directory Is Empty.")
         return
 
-    print ("Changing directory to : ", str(cfg.data_path))
-    os.chdir(str(cfg.data_path))
+    #print ("Changing directory to : ", str(self.data_path))
+    os.chdir(str(self.data_path))
 
-    if (cfg.this_fn_to_open == None):
-        print ("LoadGame...  No file selected...")
-        os.chdir(cfg.saved_dir)
+    if (self.this_fn_to_open == None):
+        #print ("LoadGame...  No file selected...")
+        os.chdir(self.saved_dir)
         return
 
-    if (cfg.this_fn_to_open.endswith(".json") == True):
-        with open(cfg.this_fn_to_open) as filein:
+    if (self.this_fn_to_open.endswith(".json") == True):
+        with open(self.this_fn_to_open) as filein:
             lines_in = json.load(filein)
-        print ("fn : ", cfg.this_fn_to_open, " lines in : ", lines_in)
+        #print ("fn : ", self.this_fn_to_open, " lines in : ", lines_in)
         Load_NPATHSave_Version_1 (self, lines_in)
-        cfg.show_board = 2  # reinitialize sprites and lists
-        cfg.do_random_board = False
-        cfg.this_fn_to_save = cfg.this_fn_to_open
+        self.show_board = 2  # reinitialize sprites and lists
+        self.do_random_board = False
+        self.this_fn_to_save = self.this_fn_to_open
 
-    #print ("Going back to directory : ", cfg.saved_dir)
-    os.chdir(cfg.saved_dir)
-    print_cfg()
+    #print ("Going back to directory : ", self.saved_dir)
+    os.chdir(self.saved_dir)
+    #print_cfg(self)
 
 
 def SaveGame (self):
     print ("Save Game")
-    cfg.saved_dir = str(Path.cwd())
-#    print ("Keep track of current directory : ", cfg.saved_dir)
+    self.saved_dir = str(Path.cwd())
+#    print ("Keep track of current directory : ", self.saved_dir)
 
-    if (cfg.data_path.exists() != True):
-        print ("No save directory exists.  Creating : ", str(cfg.data_path))
-        cfg.data_path.mkdir(mode=0o700, parents=True, exist_ok=False)
+    if (self.data_path.exists() != True):
+        print ("No save directory exists.  Creating : ", str(self.data_path))
+        self.data_path.mkdir(mode=0o700, parents=True, exist_ok=False)
 
-#    print ("Changing directory to : ", str(cfg.data_path))
-    os.chdir(str(cfg.data_path))
+#    print ("Changing directory to : ", str(self.data_path))
+    os.chdir(str(self.data_path))
 
-    print ("Saving Game to File : ", cfg.this_fn_to_save)
-    with open(cfg.this_fn_to_save, mode="w") as fileout:
+    print ("Saving Game to File : ", self.this_fn_to_save)
+    with open(self.this_fn_to_save, mode="w") as fileout:
 
-        json.dump([["NPATH_Save\n", 1], [cfg.borders, cfg.game_rows, cfg.game_cols], self.board], fileout, indent = 4, separators=(',', ': '))
+        json.dump([["NPATH_Save\n", 1], [self.game_rows, self.game_cols], self.board], fileout, indent = 4, separators=(',', ': '))
 
-    cfg.this_fn_to_open = cfg.this_fn_to_save
-#    print ("Going back to directory : ", cfg.saved_dir)
-    os.chdir(cfg.saved_dir)
+    self.this_fn_to_open = self.this_fn_to_save
+#    print ("Going back to directory : ", self.saved_dir)
+    os.chdir(self.saved_dir)
 
 
 def NewRandomGame(self):
     print ("New Random Game")
-    cfg.new_game_rows = cfg.game_rows
-    cfg.new_game_cols = cfg.game_cols
-    cfg.new_borders = cfg.borders
-    cfg.do_random_board = True
-    cfg.show_board = 2  # reinitialize sprites and lists
+    self.new_game_rows = self.game_rows
+    self.new_game_cols = self.game_cols
+    self.do_random_board = True
+    self.show_board = 2  # reinitialize sprites and lists
+
+
 def SimpleCheck (self):
 #    print ("Simple Check")
     for i in range(len(self.board)):
@@ -195,45 +185,27 @@ def CheckBoard (self):
         print("You lost, no match found.  Sorry, try again.")
 
 
-def DeleteSavedGame ():
+def DeleteSavedGame (self):
     print ("Delete Saved Game")
-    cfg.saved_dir = str(Path.cwd())
-    #print ("Keep track of current directory : ", cfg.saved_dir)
+    self.saved_dir = str(Path.cwd())
+    #print ("Keep track of current directory : ", self.saved_dir)
 
     # check for saved games directory
-    if (cfg.data_path.exists() != True):
-        #print("Npath Save Game Directory Missing.  You haven't created : " + str(cfg.data_path) + " yet")
+    if (self.data_path.exists() != True):
+        #print("Npath Save Game Directory Missing.  You haven't created : " + str(self.data_path) + " yet")
         pass
-    elif (len(os.listdir(path=str(cfg.data_path))) == 0):
+    elif (len(os.listdir(path=str(self.data_path))) == 0):
         #print("Npath Save Game Directory Is Empty.")
         pass
     else:
         # get rid of the saved file
-        os.chdir(str(cfg.data_path))
-        os.remove(str(cfg.this_fn_to_save))
+        os.chdir(str(self.data_path))
+        os.remove(str(self.this_fn_to_save))
 
     # get rid of the saved file directory
-    if (cfg.data_path.exists() == True):
-        os.rmdir(str(cfg.data_path))
+    if (self.data_path.exists() == True):
+        os.rmdir(str(self.data_path))
 
-    os.chdir(str(cfg.saved_dir))
-
-    # check for config save directory
-    if (cfg.config_path.exists() != True):
-        #print("Npath Config Directory Missing.  You haven't created : " + str(cfg.config_path) + " yet")
-        pass
-    elif (len(os.listdir(path=str(cfg.config_path))) == 0):
-        #print("Npath Config Directory Is Empty.")
-        pass
-    else:
-        # get rid of the saved file
-        os.chdir(str(cfg.config_path))
-        os.remove(str(cfg.config_filename))
-
-    # get rid of the config save file directory
-    if (cfg.config_path.exists() == True):
-        os.rmdir(str(cfg.config_path))
-
-    os.chdir(str(cfg.saved_dir))
+    os.chdir(str(self.saved_dir))
 
 

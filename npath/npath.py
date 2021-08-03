@@ -3,16 +3,16 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) Flowerbug <flowerbug@anthive.com>
 
+import copy, os, random
+from pathlib import Path, PurePath
+
 import pyglet
 from pyglet.window import mouse
 from pyglet import clock
 
-import config as cfg
-
 from active import ActiveAreaLeftMouseClickAction, ActiveAreaRightMouseClickAction, ActiveAreaMouseMoveAction
-from board import DrawBoard, RestartGame
+from board import Board, ResizeBoard, RestartGame
 from dialog import ChangeLayout, CheckBoard, DeleteSavedGame, LoadGame, NewRandomGame, RestoreConfigDefaults, SaveGame, ShowAbout
-from my_init import MyInitStuff
 from version import GetVersion
 
 
@@ -32,12 +32,204 @@ class Window(pyglet.window.Window):
 
         super(Window, self).__init__(width, height, caption, resizable, fullscreen, visible, *args, **kwargs)
 
-        self.set_visible(False)
-
         print("Pyglet version : ", pyglet.version)
         print("Npath version  : ", GetVersion())
 
-        MyInitStuff (self)
+        # colors
+        self.color_list = [
+            (  0,   0,   0, 255),  # black
+            (255,   0,   0, 255),  # red
+            (  0, 255,   0, 255),  # green
+            (  0,   0, 255, 255),  # blue
+            (128,   0, 128, 255),  # purple
+            (255, 165,   0, 255),  # orange
+            (255, 255,   0, 255),  # yellow
+            (  0, 255, 255, 255),  # cyan
+            (255,   0, 255, 255),  # fuchia
+            (255, 192, 203, 255),  # pink
+            ( 34, 139,  34, 255),  # forestgreen
+            (211, 211, 211, 255),  # lightgray
+            (160,  82,  45, 255),  # sienna
+            (128, 128, 128, 255),  # gray
+            ( 65, 105, 225, 255),  # royalblue
+            (135, 206, 235, 255),  # skyblue
+            (  0,   0, 139, 255),  # darkblue
+            (135, 135, 135, 255)
+            ]
+
+        # the path to the images
+        self.png_path = os.path.dirname(__file__) + "/graphics/"
+
+        # the basic game unit for images and moving is
+        self.img_pix = 64
+
+
+        #   save game location and initial file
+        # you can always save/load other names, 
+        # this is just a suggestion...
+        self.suggested_fn = "save.json"
+        self.this_fn_to_open = self.suggested_fn
+        self.this_fn_to_save = self.suggested_fn
+
+        self.home = Path.home()
+        self.saved_dir = None
+
+
+        # save file directory
+        if (os.name == "posix"):
+            self.home = Path.home()
+            self.data_path = self.home / Path(".local/share/npath")
+        else:
+            print ("  Npath doesn't know where to set data_path for OS : ", os.name)
+            print ("This is where a user would save their games.")
+
+
+        # when loading a game from a file we put stuff in
+        # these spots so that Board.draw() can use them.
+        # changing dimensions in the config dialog also uses
+        # these.
+        self.new_game_rows = None
+        self.new_game_cols = None
+        self.new_board = None
+
+        self.random_board = True
+
+
+        self.min_rows = 1     # must be 1 or greater
+        self.min_cols = 1     #
+
+        self.max_rows = 50    # for temporary testing
+        self.max_cols = 50    #
+
+        # default and regular size
+        self.default_game_rows = 4     # height
+        self.default_game_cols = 4     # width
+        self.game_rows = 5     # height
+        self.game_cols = 4     # width
+
+        random.seed()
+
+        self.png_path = os.path.dirname(__file__) + "/graphics/"
+
+        # the window, board and tile basic unit of size
+        # in the future i hope this can change dynamically, but for
+        # now it is a fixed size
+        self.img_pix = 64
+
+        # screens, sizes and locations
+        #   some of these change as the board changes size
+        self.top_display = pyglet.canvas.get_display()
+        self.top_screen = self.top_display.get_default_screen()
+        self.full_screen_width = self.top_screen.width
+        self.full_screen_height = self.top_screen.height
+        print ("Full Window Size : ", self.full_screen_width, self.full_screen_height)
+        self.windows_lst = self.top_display.get_windows()
+        self.wl0 = self.windows_lst[0]
+        self.screen_width = self.windows_lst[0].width
+        self.screen_height = self.windows_lst[0].height
+        self.x, self.y = self.windows_lst[0].get_location()
+        print ("WL[0] Location and Size : ", self.x, self.y, self.screen_width, self.screen_height)
+
+        # initial window is blank and flickers i don't want 
+        # to see it until it is resized later
+        self.windows_lst[0].set_visible(True)
+
+        # if there is a game saved use it
+        LoadGame (self)
+
+        # other useful constants
+        self.board_squares = self.game_rows*self.game_cols
+        self.window_rows = self.game_rows
+        self.window_cols = self.game_cols
+        self.window_squares = self.window_rows*self.window_cols
+
+        ResizeBoard (self)
+
+        self.game_board_x_limit = 0
+        self.game_board_y_limit = 0
+
+        self.keys_held = []
+        self.key = pyglet.window.key
+
+        self.mouse_win_pos = 0
+
+        self.fps = pyglet.window.FPSDisplay(self)
+
+
+        # batches for rendering
+        self.batch = pyglet.graphics.Batch()
+        self.over_batch = pyglet.graphics.Batch()
+
+        self.fixed_batch = pyglet.graphics.Batch()
+        self.fixed_board_batch = pyglet.graphics.Batch()
+        self.pointer_bottom_batch = pyglet.graphics.Batch()
+        self.pointer_middle_batch = pyglet.graphics.Batch()
+        self.pointer_top_batch = pyglet.graphics.Batch()
+
+
+        # groups for rendering
+        self.background_board_group = pyglet.graphics.Group(0)
+        self.foreground_board_group = pyglet.graphics.Group(1)
+
+
+        # lists of sprites
+        self.fixed_sprites = []
+        self.fixed_board_sprites = []
+        self.board_sprites = []
+        self.guess_sprites = []
+        self.top_sprites = []
+
+        self.white_active_squares = []
+        self.white_active_squares_position = []
+        self.guess_active_squares = []
+        self.guess_active_squares_position = []
+        self.board_to_window_index = []
+
+
+        # background images : white, blue
+        self.white_bg_image = pyglet.image.SolidColorImagePattern(color=(255,255,255,255)).create_image(width=self.img_pix, height=self.img_pix)
+        self.blue_bg_image = pyglet.image.SolidColorImagePattern(color=(173,216,230,255)).create_image(width=self.img_pix, height=self.img_pix)
+
+        # tanish tile uses color (204 150 77) 64x64 pixels
+#    self.game_tile_image = pyglet.image.SolidColorImagePattern(color=(204, 150, 77, 255)).create_image(width=self.img_pix, height=self.img_pix)
+#    self.game_tile_image = pyglet.image.load(self.png_path + "misc/tile.png")
+        self.base_img = pyglet.image.load(self.png_path + "misc/tile.png")
+#    self.game_tile_image.save(self.png_path + "misc/tile.png")
+
+        # green cube uses color (18, 239, 0) 50x50 pixels
+        self.gcube_image = pyglet.image.load(self.png_path + "misc/gcube.png")
+#    self.gcube_image = pyglet.image.SolidColorImagePattern(color=(18, 239, 0, 255)).create_image(width=self.img_pix, height=self.img_pix)
+#    self.gcube_image.save(self.png_path + "misc/gcube.png")
+
+        # pink cube uses color (237, 13, 255) 34x34 pixels
+        self.cube_image = pyglet.image.load(self.png_path + "misc/cube.png")
+#    self.cube_image = pyglet.image.SolidColorImagePattern(color=(237, 13, 255, 255)).create_image(width=self.img_pix, height=self.img_pix)
+#    self.cube_image.save(self.png_path + "misc/cube.png")
+#    self.cube_image = pyglet.shapes.BorderedRectangle(0, 0, width=self.img_pix, height=self.img_pix, border=20, color=(237, 13, 255), border_color=(0, 0, 0))
+
+
+        self.sprite_list = []
+        sprite = pyglet.sprite.Sprite(self.base_img)
+        self.sprite_list.append([self.base_img, sprite])
+        for i in range(len(self.color_list)):
+            image = pyglet.image.SolidColorImagePattern(color=self.color_list[i]).create_image(width=self.img_pix, height=self.img_pix)
+            sprite = pyglet.sprite.Sprite(image)
+            self.sprite_list.append([image, sprite])
+
+        # put the gcube and cube someplace.
+        # i may not need these eventually so not going to make this
+        # a function for now...
+        x_pos = 0
+        y_pos = 0
+        self.gcube = pyglet.sprite.Sprite( self.gcube_image, batch=self.pointer_bottom_batch, x = x_pos, y = y_pos)
+        self.gcube.visible = True
+        self.top_sprites.append(self.gcube)
+        self.cube = pyglet.sprite.Sprite( self.cube_image, batch=self.pointer_top_batch, x = x_pos, y = y_pos)
+        self.cube.visible = False
+        self.top_sprites.append(self.cube)
+
+        self.no_user_actions = False
+        self.show_board = 0
 
 
     def on_draw(self):
@@ -51,8 +243,8 @@ class Window(pyglet.window.Window):
     def on_mouse_press(self, x, y, button, modifiers):
 
         # only do things when something else isn't happening
-        if (cfg.no_user_actions == False):
-            img_pix = cfg.img_pix
+        if (self.no_user_actions == False):
+            img_pix = self.img_pix
             x_win = x // img_pix
             x_rec = x_win * img_pix
             y_win = y // img_pix
@@ -78,10 +270,10 @@ class Window(pyglet.window.Window):
     def on_mouse_motion(self, x, y, dx, dy):
 
         # don't do anything when something else is happening
-        if (cfg.no_user_actions == True):
+        if (self.no_user_actions == True):
             return ()
 
-        img_pix = cfg.img_pix
+        img_pix = self.img_pix
         x_win = x // img_pix
         x_rec = x_win * img_pix
         y_win = y // img_pix
@@ -118,68 +310,64 @@ class Window(pyglet.window.Window):
 #            print ("The 'F1', 'H', or '?' key was pressed ")
             pass
         elif symbol == pyglet.window.key.F2:
-#            print ("The 'F2' key was pressed, show board ", cfg.show_board)
-            # after the initial showing of the background we
-            # don't ever need to see the background again so 
-            # only toggle between the game board and the guess 
-            # board (0 or 1)...
-            cfg.show_board = (cfg.show_board + 1) % 2
+            print ("The 'F2' key was pressed, show board ", self.show_board)
+            self.show_board = (self.show_board + 1) % 2
 
-            if (cfg.show_board == 0):
-                self.cube.visible = True
-                self.gcube.visible = False
-            elif (cfg.show_board == 1):
+            if (self.show_board == 0):
+                self.background_board_group.visible = False
+                self.foreground_board_group.visible = True
                 self.cube.visible = False
                 self.gcube.visible = True
-#            print ("The 'F2' key was pressed, show board changed to ", cfg.show_board)
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F3)):
+            elif (self.show_board == 1):
+                self.background_board_group.visible = True
+                self.foreground_board_group.visible = False
+                self.cube.visible = True
+                self.gcube.visible = False
+            print ("The 'F2' key was pressed, show board changed to ", self.show_board)
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F3)):
             print ("The 'F3' key was pressed")
             ChangeLayout (self)
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F6)):
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F6)):
             print ("The 'F6' key was pressed")
             LoadGame (self)
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F7)):
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F7)):
             print ("The 'F7' key was pressed")
             SaveGame (self)
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F8)):
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F8)):
             print ("The 'F8' key was pressed")
             NewRandomGame (self)
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F9)):
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F9)):
             print ("The 'F9' key was pressed")
             RestartGame (self)
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F10)):
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F10)):
             print ("The 'F10' key was pressed")
             CheckBoard (self)
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.F11)):
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F11)):
             print ("The 'F11' key was pressed")
-            DeleteSavedGame ()
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.LEFT)):
-            if cfg.game_cols > cfg.min_cols:
-                cfg.game_rows = cfg.game_rows
-                cfg.game_cols = cfg.game_cols - 1
-                cfg.show_board = 2  # reinitialize sprites and lists
-                cfg.do_random_board = True
+            DeleteSavedGame (self)
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.LEFT)):
+            if self.game_cols > self.min_cols:
+                self.game_rows = self.game_rows
+                self.game_cols = self.game_cols - 1
+                self.do_random_board = True
             print ("The 'LEFT' key was pressed")
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.RIGHT)):
-            if cfg.game_cols < cfg.max_cols:
-                cfg.game_rows = cfg.game_rows
-                cfg.game_cols = cfg.game_cols + 1
-                cfg.show_board = 2  # reinitialize sprites and lists
-                cfg.do_random_board = True
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.RIGHT)):
+            if self.game_cols < self.max_cols:
+                self.game_rows = self.game_rows
+                self.game_cols = self.game_cols + 1
+                self.do_random_board = True
             print ("The 'RIGHT' key was pressed")
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.UP)):
-            if cfg.game_rows < cfg.max_rows:
-                cfg.game_rows = cfg.game_rows + 1
-                cfg.game_cols = cfg.game_cols
-                cfg.show_board = 2  # reinitialize sprites and lists
-                cfg.do_random_board = True
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.UP)):
+            if self.game_rows < self.max_rows:
+                self.game_rows = self.game_rows + 1
+                self.game_cols = self.game_cols
+                self.do_random_board = True
             print ("The 'UP' key was pressed")
-        elif ((cfg.show_board == 1) and (symbol == pyglet.window.key.DOWN)):
-            if cfg.game_rows > cfg.min_rows:
-                cfg.game_rows = cfg.game_rows - 1
-                cfg.game_cols = cfg.game_cols
-                cfg.show_board = 2  # reinitialize sprites and lists
-                cfg.do_random_board = True
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.DOWN)):
+            if self.game_rows > self.min_rows:
+                self.game_rows = self.game_rows - 1
+                self.game_cols = self.game_cols
+                self.do_random_board = True
             print ("The 'DOWN' key was pressed")
         else:
            pass
@@ -201,13 +389,12 @@ class Window(pyglet.window.Window):
 
         self.clear()
 
-        DrawBoard (self)
-
+        self.batch.draw()
+        self.over_batch.draw()
         self.fixed_batch.draw()
         self.fixed_board_batch.draw()
-        self.variable_board_batch.draw()
-        self.variable_guess_batch.draw()
         self.pointer_bottom_batch.draw()
+        self.pointer_middle_batch.draw()
         self.pointer_top_batch.draw()
 
 #        self.fps.draw()
@@ -215,7 +402,11 @@ class Window(pyglet.window.Window):
 
 def main():
     window = Window(width=1, height=1, caption="Npath", resizable=True, fullscreen=False, visible=False)
-    pyglet.clock.schedule_interval(window.update, 1/120.0) # update at 60Hz
+    window.back_board = Board(window, window.game_rows, window.game_cols, window.img_pix, window.img_pix, True, window.batch, window.background_board_group)
+    window.middle_board = Board(window, window.game_rows, window.game_cols, window.img_pix, window.img_pix, False, window.over_batch, window.foreground_board_group)
+    print (window.back_board)
+    print (window.middle_board)
+    pyglet.clock.schedule_interval(window.update, 1/60.0) # update at 60Hz
     pyglet.app.run()
 
 

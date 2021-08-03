@@ -16,7 +16,9 @@
 
   Version 0.5.0 makes the border and the white active border squares optional.  F12 toggles between views with and without borders.  Saving and Loading boards now include the borders flag as also does the configuration file when it is saved.  Version 0.5.1 continues working on fixing bugs.  This is not complete yet, so some bugs remain and I've decided I'm not going to completely debug this version because I plan on redoing more of the board drawing and parameters and such in a more object oriented fashion.  This is a lot more complicated than it needs to be.
 
-  Version 0.6.0 is one step further of simplification.  There is not big need for a configuration file for the game.  Save the board sizes and border flag with the board itself.  If there isn't a board saved to start with when the game starts use the built in defaults.
+  Version 0.6.0 is one step further of simplification.  There is no big need for a configuration file for the game.  Save the board sizes and border flag with the board itself.  If there isn't a board saved to start with when the game starts use the built in defaults.
+
+  Version 0.7.0 is a lot more simplified.  I've combined files, made some classes and methods, gotten rid of borders and the config file.  The save and load game functions do not work yet, and many other things like resizing the board, but this is the first step in this version - more work to go, but coming along.
 
 
 # The next versions will be aiming towards
