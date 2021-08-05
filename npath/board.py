@@ -56,7 +56,7 @@ def bd_random_board (self, window):
 
 class Tile ():
 
-    def __init__(self, window, tile_img_number, tile_height, tile_width, tile_x, tile_y, batch, group):
+    def __init__ (self, window, tile_img_number, tile_height, tile_width, tile_x, tile_y, batch, group):
         self.img_number = tile_img_number
         if ((self.img_number == None) or (self.img_number < 0) or self.img_number > len(window.sprite_list)):
             self.img = window.sprite_list[0][0]
@@ -75,26 +75,19 @@ class Tile ():
 
 class Board ():
 
-    def __init__(self, window, height, width, tile_height, tile_width, random_board, batch, group):
+    def __init__ (self, window, height, width, tile_height, tile_width, random_board, loaded_board, batch, group):
         self.board_height = height
         self.board_width = width
         self.tile_height = tile_height
         self.tile_width = tile_width
         self.do_random_board = random_board
+        self.do_loaded_board = copy.deepcopy(loaded_board)
         self.batch = batch
         self.group = group
-        self.tiles = []
-        if (height <= 0):
-            height = 1
-        if (width <= 0):
-            width = 1
-        if (tile_height <= 0):
-            tile_height = 1
-        if (tile_width <= 0):
-            tile_width = 1
 
         # make a board of the right size and fill it with the base tile
         # from the sprite list
+        self.tiles = []
         for y in range (height):
             for x in range (width):
                 tile_c = Tile(window, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group)
@@ -107,12 +100,37 @@ class Board ():
         if (self.do_random_board == True):
             bd_random_board (self, window)
             self.do_random_board = False
+        elif (self.do_loaded_board != None):
+            print ("Loaded Board in Class Board", self.do_loaded_board)
+            if (len(self.do_loaded_board) == len(self.tiles)):
+                print("Lengths match")
+                for x in range(len(self.do_loaded_board)):
+                    self.tiles[x].spr.image = window.sprite_list[self.do_loaded_board[x]][0]
+                    self.tiles[x].img_number = self.do_loaded_board[x]
+            else:
+                print("Lengths don't match")
+            self.do_loaded_board = None
 
-    def __str__(self):
-        tiles_str = ""
+
+    def __str__ (self):
+        num_str = ""
+        num_str = " ".join(self.num_str_list())
+        return f"\nBoard :  Height : {self.board_height}  Width : {self.board_width}\n  Batch : {self.batch}  Group : {self.group}\n  Tiles : {num_str}\n"
+
+
+    def num_str_list (self):
+        tiles_num_str_list = []
         for x in range(len(self.tiles)):
-            tiles_str = tiles_str + " " + str(self.tiles[x].img_number)
-        return f"\nBoard :  Height : {self.board_height}  Width : {self.board_width}\n  Batch : {self.batch}  Group : {self.group}\n  Tiles : {tiles_str}\n"
+            tiles_num_str_list.append(str(self.tiles[x].img_number))
+        return (tiles_num_str_list)
+
+
+    def num_list (self):
+        tiles_num_list = []
+        for x in range(len(self.tiles)):
+            tiles_num_list.append(self.tiles[x].img_number)
+        return (tiles_num_list)
+
 
     def delete (self):
         for x in range(len(self.tiles)):

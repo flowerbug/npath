@@ -10,7 +10,7 @@ import copy
 import json
 from pathlib import Path
 
-from board import ClearBoard, ResizeBoard
+from board import Board, ClearBoard, ResizeBoard
 from version import GetVersion
 
 
@@ -47,8 +47,6 @@ def ShowAbout (self):
         + "    'F2'                : Show or Hide guesses\n"
         + "                             Only the 'Q', 'ESC', 'F1', 'H', or '?' keys will work when showing guesses\n"
         + "\n"
-        + "    'F3'                : Toggle Border\n"
-        + "\n"
         + "\n"
         + "    'Arrow Keys'        : Increase or Decrease Columns and Rows\n"
         + "\n"
@@ -76,20 +74,16 @@ def ChangeLayout(self):
     print ("ChangeLayout")
 
 
-def Load_NPATHSave_Version_1 (self, lines_in):
+def Load_NPATH_Version_1 (self, lines_in):
 
-    self.new_game_rows = lines_in[1][0]
-    self.new_game_cols = lines_in[1][1]
+    self.game_rows = lines_in[1][0]
+    self.game_cols = lines_in[1][1]
 
-    self.new_board = []
-    self.new_board = copy.deepcopy(lines_in[2])
-
-    # we're going to have to redraw the board
-    # but we aren't a random board
-    self.show_board = 2
-    self.do_random_board = False
-
-    print ("Load_NPATHSave_Version_1 -> new variables NR NC NewBoard", self.new_game_rows, self.new_game_cols, self.new_board)
+#    print(lines_in[2])
+#    print(lines_in[3])
+    self.back_board = Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[2], self.batch, self.background_board_group)
+    self.middle_board = Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[3], self.over_batch, self.foreground_board_group)
+    print ("Load_NPATH_Version_1 -> new variables NR NC NB NM", self.new_game_rows)
 
 
 def LoadGame (self):
@@ -99,12 +93,12 @@ def LoadGame (self):
 
     # check for saved games directory
     if (self.data_path.exists() != True):
-        #print("Npath Save Game Directory Missing.  You haven't created : " + str(self.data_path) + " yet")
+        print("No Saved Game To Load.")
         return
 
     # is there anything in there?
     if (len(os.listdir(path=str(self.data_path))) == 0):
-        #print("Npath Save Game Directory Is Empty.")
+        #print("Saved Game Directory Is Empty.")
         return
 
     #print ("Changing directory to : ", str(self.data_path))
@@ -117,12 +111,14 @@ def LoadGame (self):
 
     if (self.this_fn_to_open.endswith(".json") == True):
         with open(self.this_fn_to_open) as filein:
-            lines_in = json.load(filein)
-        #print ("fn : ", self.this_fn_to_open, " lines in : ", lines_in)
-        Load_NPATHSave_Version_1 (self, lines_in)
-        self.show_board = 2  # reinitialize sprites and lists
-        self.do_random_board = False
-        self.this_fn_to_save = self.this_fn_to_open
+            try:
+                lines_in = json.load(filein)
+                Load_NPATH_Version_1 (self, lines_in)
+                self.do_random_board = False
+                self.this_fn_to_save = self.this_fn_to_open
+                #print ("fn : ", self.this_fn_to_open, " lines in : ", lines_in)
+            except:
+                print ("There is some type of problem with the saved game.  Perhaps it wasn't saved correctly?")
 
     #print ("Going back to directory : ", self.saved_dir)
     os.chdir(self.saved_dir)
@@ -144,7 +140,7 @@ def SaveGame (self):
     print ("Saving Game to File : ", self.this_fn_to_save)
     with open(self.this_fn_to_save, mode="w") as fileout:
 
-        json.dump([["NPATH_Save\n", 1], [self.game_rows, self.game_cols], self.board], fileout, indent = 4, separators=(',', ': '))
+        json.dump([["NPATH_Save\n", 1], [self.game_rows, self.game_cols], self.back_board.num_list(), self.middle_board.num_list()], fileout, indent = 4, separators=(',', ': '))
 
     self.this_fn_to_open = self.this_fn_to_save
 #    print ("Going back to directory : ", self.saved_dir)
@@ -156,7 +152,6 @@ def NewRandomGame(self):
     self.new_game_rows = self.game_rows
     self.new_game_cols = self.game_cols
     self.do_random_board = True
-    self.show_board = 2  # reinitialize sprites and lists
 
 
 def SimpleCheck (self):
