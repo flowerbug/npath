@@ -102,8 +102,8 @@ class Window(pyglet.window.Window):
         self.max_cols = 50    #
 
         # board size if no saved board exists
-        self.game_rows = 5     # height
-        self.game_cols = 4     # width
+        self.game_rows = 3     # height
+        self.game_cols = 2     # width
 
         random.seed()
 
@@ -132,19 +132,11 @@ class Window(pyglet.window.Window):
         # to see it until it is resized later
         self.windows_lst[0].set_visible(True)
 
-        # if there is a game saved use it
-        LoadGame (self)
-
         # other useful constants
         self.board_squares = self.game_rows*self.game_cols
         self.window_rows = self.game_rows
         self.window_cols = self.game_cols
         self.window_squares = self.window_rows*self.window_cols
-
-        ResizeBoard (self)
-
-        self.game_board_x_limit = 0
-        self.game_board_y_limit = 0
 
         self.keys_held = []
         self.key = pyglet.window.key
@@ -228,6 +220,8 @@ class Window(pyglet.window.Window):
 
         self.no_user_actions = False
         self.show_board = 0
+
+        ResizeBoard (self)
 
 
     def on_draw(self):
@@ -399,11 +393,23 @@ class Window(pyglet.window.Window):
 
 
 def main():
+
     window = Window(width=1, height=1, caption="Npath", resizable=True, fullscreen=False, visible=False)
-    window.back_board = Board(window, window.game_rows, window.game_cols, window.img_pix, window.img_pix, True, window.batch, window.background_board_group)
-    window.middle_board = Board(window, window.game_rows, window.game_cols, window.img_pix, window.img_pix, False, window.over_batch, window.foreground_board_group)
+
+    window.back_board = Board(window, window.game_rows, window.game_cols, window.img_pix, window.img_pix, True, None, window.batch, window.background_board_group)
+    window.middle_board = Board(window, window.game_rows, window.game_cols, window.img_pix, window.img_pix, False, None, window.over_batch, window.foreground_board_group)
+
     print (window.back_board)
     print (window.middle_board)
+
+    # if there is a game saved use it
+    LoadGame (window)
+
+    ResizeBoard (window)
+
+    print (window.back_board)
+    print (window.middle_board)
+
     pyglet.clock.schedule_interval(window.update, 1/60.0) # update at 60Hz
     pyglet.app.run()
 
