@@ -18,7 +18,7 @@
 
   Version 0.6.0 is one step further of simplification.  There is no big need for a configuration file for the game.  Save the board sizes and border flag with the board itself.  If there isn't a board saved to start with when the game starts use the built in defaults.
 
-  Version 0.7.0 is a lot more simplified.  I've combined files, made some classes and methods, gotten rid of borders and the config file.  The save and load game functions do not work yet, and many other things like resizing the board, but this is the first step in this version - more work to go, but coming along.
+  Version 0.7.0 is a lot more simplified.  I've combined files, made some classes and methods, gotten rid of borders and the config file.  The save and load game functions do not work yet, and many other things like resizing the board, but this is the first step in this version - more work to go, but coming along.  Version 0.7.1 removes the complication of having another layer of defaults.
 
 
 # The next versions will be aiming towards

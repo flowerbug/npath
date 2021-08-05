@@ -19,16 +19,6 @@ def print_cfg (self):
     print ("Config Values")
     print ("Current    Rows, Cols : ", self.game_rows, self.game_cols)
     print ("New        Rows, Cols : ", self.new_game_rows, self.new_game_cols)
-    print ("Defaults   Rows, Cols : ", self.default_game_rows, self.default_game_cols)
-
-
-# not sure I'm keeping this yet...
-def RestoreConfigDefaults(self):
-    print ("Restore Config Defaults")
-    self.game_rows = self.default_game_rows
-    self.game_cols = self.default_game_cols
-    if (self.show_board != 2):
-        print("Npath configuration parameters reset now using default values")
 
 
 def ShowAbout (self):

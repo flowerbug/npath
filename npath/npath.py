@@ -12,7 +12,7 @@ from pyglet import clock
 
 from active import ActiveAreaLeftMouseClickAction, ActiveAreaRightMouseClickAction, ActiveAreaMouseMoveAction
 from board import Board, ResizeBoard, RestartGame
-from dialog import ChangeLayout, CheckBoard, DeleteSavedGame, LoadGame, NewRandomGame, RestoreConfigDefaults, SaveGame, ShowAbout
+from dialog import ChangeLayout, CheckBoard, DeleteSavedGame, LoadGame, NewRandomGame, SaveGame, ShowAbout
 from version import GetVersion
 
 
@@ -101,9 +101,7 @@ class Window(pyglet.window.Window):
         self.max_rows = 50    # for temporary testing
         self.max_cols = 50    #
 
-        # default and regular size
-        self.default_game_rows = 4     # height
-        self.default_game_cols = 4     # width
+        # board size if no saved board exists
         self.game_rows = 5     # height
         self.game_cols = 4     # width
 
