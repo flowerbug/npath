@@ -10,67 +10,36 @@ import pyglet
 import copy
 
 
-def bd_random_board (self, window):
+def new_random_game (self):
 
-    randpop = 1
-    if ((window.board_squares != 0) and (window.board_squares >= 2)):
-        randpop = random.getrandbits(32) % window.board_squares
-        randpop = randpop * 100
-
-    # window.board_squares should always be at least 1
-    if (randpop > window.board_squares):
-        randpop = window.board_squares
-
-    if randpop < 0:
-        randpop = 1
-
-    # window.sprite_list is how many colors to be used
-    #   as a percentage, but you can add more to randpop
-    #   to fill in the board even further.  if you want to
-    #   weight certain colors higher duplicate those colors 
-    #   in window.color_list.
-    #
-    #   for this version i want a full board of random 
-    #   colors (duplicates allowed) so i use placed as
-    #   the limit.
-    sprite_list_length = len(window.sprite_list)
-    placed = 0
-    while ((randpop > 0) or (placed < window.board_squares)):
-        position = random.getrandbits(32) % window.board_squares
-        #print ("randpop, position", randpop, position)
-
-        if (self.tiles[position].img_number == 0):
-
-            # don't pick 0 since that's the foreground blank tile image
-            randchance = random.randint(1,100)
-            if (randchance < sprite_list_length):
-                placed += 1
-                #print ("Position : ", position, " Img : ", randchance)
-                self.tiles[position].img_number = randchance
-                self.tiles[position].img = window.sprite_list[randchance][0]
-                self.tiles[position].spr.image = window.sprite_list[randchance][0]
-        randpop -= 1
-
-    #print (" Placed : ", placed)
+    print ("New Random Game")
+    self.back_board.bd_randomize (self)
 
 
 class Tile ():
 
+
     def __init__ (self, window, tile_img_number, tile_height, tile_width, tile_x, tile_y, batch, group):
         self.img_number = tile_img_number
         if ((self.img_number == None) or (self.img_number < 0) or self.img_number > len(window.sprite_list)):
-            self.img = window.sprite_list[0][0]
+            img = window.sprite_list[0][0]
         else:
-            self.img = window.sprite_list[self.img_number][0]
-        self.spr = pyglet.sprite.Sprite(self.img, 0, 0)
+            img = window.sprite_list[self.img_number][0]
+        self.spr = pyglet.sprite.Sprite(img, 0, 0)
         self.spr.x = tile_x
         self.spr.y = tile_y
         self.spr.batch = batch
         self.spr.group = group
         self.spr.visible = True
 
+
     def delete (self):
         self.spr.delete()
+
+
+    def set_img (self, img_number, img):
+        self.img_number = img_number
+        self.spr.image = img
 
 
 class Board ():
@@ -98,24 +67,25 @@ class Board ():
 
         # if it is a random board replace the base tiles
         if (self.do_random_board == True):
-            bd_random_board (self, window)
+            print ("Random Board in Class Board")
+            self.bd_randomize (window)
             self.do_random_board = False
+
+        # if it is a board to create from a list use those numbers instead
         elif (self.do_loaded_board != None):
             print ("Loaded Board in Class Board", self.do_loaded_board)
             if (len(self.do_loaded_board) == len(self.tiles)):
-                print("Lengths match")
                 for x in range(len(self.do_loaded_board)):
-                    self.tiles[x].spr.image = window.sprite_list[self.do_loaded_board[x]][0]
-                    self.tiles[x].img_number = self.do_loaded_board[x]
+                    self.tiles[x].set_img (self.do_loaded_board[x], window.sprite_list[self.do_loaded_board[x]][0])
             else:
-                print("Lengths don't match")
+                print("Class Board : Lengths don't match?")
             self.do_loaded_board = None
 
 
     def __str__ (self):
         num_str = ""
         num_str = " ".join(self.num_str_list())
-        return f"\nBoard :  Height : {self.board_height}  Width : {self.board_width}\n  Batch : {self.batch}  Group : {self.group}\n  Tiles : {num_str}\n"
+        return f"Board :  Height : {self.board_height}  Width : {self.board_width}\n  Batch : {self.batch}  Group : {self.group}\n  Tiles : {num_str}"
 
 
     def num_str_list (self):
@@ -137,14 +107,58 @@ class Board ():
             self.tiles[0].spr.delete()
 
 
-def RestartGame (self):
+    def set_all (self, img_number, img):
+        for x in range(len(self.tiles)):
+            self.tiles[x].set_img (img_number, img)
 
-    print ("Restart Game")
+
+    def bd_sparse_randomize (self, window):
+
+        randpop = 1
+        if ((window.board_squares != 0) and (window.board_squares >= 2)):
+            randpop = random.getrandbits(32) % window.board_squares
+            randpop = randpop * 100
+
+        # window.board_squares should always be at least 1
+        if (randpop > window.board_squares):
+            randpop = window.board_squares
+
+        if randpop < 0:
+            randpop = 1
+
+        # window.sprite_list is how many colors to be used
+        #   as a percentage, but you can add more to randpop
+        #   to fill in the board even further.  if you want to
+        #   weight certain colors higher duplicate those colors 
+        #   in window.color_list.
+        #
+        sprite_list_length = len(window.sprite_list)
+        placed = 0
+        while (randpop > 0):
+            position = random.getrandbits(32) % window.board_squares
+            #print ("randpop, position", randpop, position)
+
+            if (self.tiles[position].img_number == 0):
+
+                # don't pick 0 since that's the foreground blank tile image
+                randchance = random.randint(1,100)
+                if (randchance < sprite_list_length):
+                    placed += 1
+                    #print ("Position : ", position, " Img : ", randchance)
+                    self.tiles[position].set_img (randchance, window.sprite_list[randchance][0])
+            randpop -= 1
+
+        #print (" Placed : ", placed)
 
 
-def ClearBoard (self):
+    def bd_randomize (self, window):
 
-    print ("Clear Board")
+        # fill all the squares
+        sprite_list_length = len(window.sprite_list) - 1
+        for x in range(len(self.tiles)):
+            # don't pick 0 since that's the foreground blank tile image
+            randchance = random.randint(1,sprite_list_length)
+            self.tiles[x].set_img (randchance, window.sprite_list[randchance][0])
 
 
 def ResizeBoard (self):
@@ -156,7 +170,6 @@ def ResizeBoard (self):
 
     # where are we now
     self.game_x, self.game_y = self.get_location()
-    print ("Previous WL[0]  Location          : ", self.game_x, self.game_y, "  Size : ", self.screen_width, self.screen_height)
 
     self.window_rows = self.game_rows
     self.window_cols = self.game_cols
@@ -179,9 +192,7 @@ def ResizeBoard (self):
 
     self.set_location(self.game_x, self.game_y)
     self.set_size(self.screen_width, self.screen_height)
-
-    print ("Moved and Resized WL[0]  Location : ", self.game_x, self.game_y, "  Size : ", self.screen_width, self.screen_height)
-
+    print ("Resized WL[0] Location\n  X Y       :  ", self.game_x, self.game_y, "\n  Size      :  ", self.screen_width, self.screen_height, " pix\n  Rows Cols :  ", self.game_rows, self.game_cols)
     # ok, let's see...
     self.set_visible(True)
 
