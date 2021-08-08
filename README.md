@@ -7,6 +7,8 @@
 
 # Versions Along the Way (in reverse order)
 
+  Version 0.8.0 makes mouse clicks useful, but since this has to be determined by each game as to what it means I've only included a simple example.  On show_board 0 pressing the 0th square is the active square, on show_board 1 pressing the 1st square is the active square - all the rest are inactive.  This version alsochanged how boards were set up so that they are in a list instead of fixed names (making it possible later for even more than two boards).
+
   Version 0.7.0 is a lot more simplified.  I've combined files, made some classes and methods, gotten rid of borders and the config file.  Many things still don't work yet (like the save and load game functions).  Version 0.7.1 removes the complication of having another layer of defaults.  Version 0.7.2 Save and Load work along with the initial load of a saved game.  Version 0.7.3 New Random Game and Check Game work.
 
   Version 0.6.0 is one step further of simplification.  There is no big need for a configuration file for the game.  Save the board sizes and border flag with the board itself.  If there isn't a board saved to start with when the game starts use the built in defaults.
