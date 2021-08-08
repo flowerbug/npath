@@ -18,6 +18,7 @@ from version import GetVersion
 
 class Window(pyglet.window.Window):
 
+
     def __init__ (
             self,
             width,
@@ -32,8 +33,13 @@ class Window(pyglet.window.Window):
 
         super(Window, self).__init__(width, height, caption, resizable, fullscreen, visible, *args, **kwargs)
 
+
         print("Pyglet version : ", pyglet.version)
         print("Npath version  : ", GetVersion())
+
+
+        # the path to the images
+        self.png_path = os.path.dirname(__file__) + "/graphics/"
 
         # colors
         self.color_list = [
@@ -57,9 +63,6 @@ class Window(pyglet.window.Window):
             (135, 135, 135, 255)
             ]
 
-        # the path to the images
-        self.png_path = os.path.dirname(__file__) + "/graphics/"
-
         #   save game location and initial file
         # you can always save/load other names, 
         # this is just a suggestion...
@@ -70,7 +73,6 @@ class Window(pyglet.window.Window):
         self.home = Path.home()
         self.saved_dir = None
 
-
         # save file directory
         if (os.name == "posix"):
             self.home = Path.home()
@@ -78,10 +80,6 @@ class Window(pyglet.window.Window):
         else:
             print ("  Npath doesn't know where to set data_path for OS : ", os.name)
             print ("This is where a user would save their games.")
-
-
-        random.seed()
-        self.do_random_board = True
 
 
         # the window, board and tile basic unit of size
@@ -98,8 +96,8 @@ class Window(pyglet.window.Window):
 
 
         # board size if no saved board exists
-        self.game_rows = 15    # height
-        self.game_cols = 30    # width
+        self.game_rows = 3     # height
+        self.game_cols = 5     # width
 
         # and some testing values
         #self.game_rows = 1    # height
@@ -112,8 +110,6 @@ class Window(pyglet.window.Window):
         #self.game_rows = 49   # height
         #self.game_cols = 49   # width
 
-
-        self.png_path = os.path.dirname(__file__) + "/graphics/"
 
         # screens, sizes and locations
         #   some of these change as the board changes size
@@ -162,21 +158,6 @@ class Window(pyglet.window.Window):
         self.background_board_group = pyglet.graphics.Group(0)
         self.foreground_board_group = pyglet.graphics.Group(1)
 
-
-        # lists of sprites
-        self.fixed_sprites = []
-        self.fixed_board_sprites = []
-        self.board_sprites = []
-        self.guess_sprites = []
-        self.top_sprites = []
-
-        self.white_active_squares = []
-        self.white_active_squares_position = []
-        self.guess_active_squares = []
-        self.guess_active_squares_position = []
-        self.board_to_window_index = []
-
-
         # background images : white, blue
         self.white_bg_image = pyglet.image.SolidColorImagePattern(color=(255,255,255,255)).create_image(width=self.img_pix, height=self.img_pix)
         self.blue_bg_image = pyglet.image.SolidColorImagePattern(color=(173,216,230,255)).create_image(width=self.img_pix, height=self.img_pix)
@@ -206,6 +187,7 @@ class Window(pyglet.window.Window):
             sprite = pyglet.sprite.Sprite(image)
             self.sprite_list.append([image, sprite])
 
+        self.cube_sprites = []
         # put the gcube and cube someplace.
         # i may not need these eventually so not going to make this
         # a function for now...
@@ -213,24 +195,27 @@ class Window(pyglet.window.Window):
         y_pos = 0
         self.gcube = pyglet.sprite.Sprite( self.gcube_image, batch=self.pointer_bottom_batch, x = x_pos, y = y_pos)
         self.gcube.visible = True
-        self.top_sprites.append(self.gcube)
+        self.cube_sprites.append(self.gcube)
         self.cube = pyglet.sprite.Sprite( self.cube_image, batch=self.pointer_top_batch, x = x_pos, y = y_pos)
         self.cube.visible = False
-        self.top_sprites.append(self.cube)
+        self.cube_sprites.append(self.cube)
 
-        self.no_user_actions = False
+        self.user_actions_allowed = True
         self.show_board = 0
 
         # if there is a game saved use it
+        self.boards = []
+
         LoadGame (self)
 
-        if (self.do_random_board == True):
-            self.back_board = Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, True, None, self.batch, self.background_board_group)
-            self.middle_board = Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, None, self.over_batch, self.foreground_board_group)
+        # did we load any boards or not
+        if (len(self.boards) == 0):
 
-        print (self.back_board)
-        print (self.middle_board)
+            random.seed()
+            self.do_random_board = True
 
+            self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, True, None, self.batch, self.background_board_group))
+            self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, None, self.over_batch, self.foreground_board_group))
 
         ResizeBoard (self)
 
@@ -247,7 +232,7 @@ class Window(pyglet.window.Window):
     def on_mouse_press(self, x, y, button, modifiers):
 
         # only do things when something else isn't happening
-        if (self.no_user_actions == False):
+        if (self.user_actions_allowed == True):
             img_pix = self.img_pix
             x_win = x // img_pix
             x_rec = x_win * img_pix
@@ -256,13 +241,13 @@ class Window(pyglet.window.Window):
             win_pos = (y_win * self.window_cols) + x_win
 
             if button == mouse.LEFT:
-                #print("The LEFT mouse button was pressed.", x, x_rec, x_win, y, y_rec, y_win, win_pos)
+                print("The LEFT mouse button was pressed.", x, x_rec, x_win, y, y_rec, y_win, win_pos)
                 ActiveAreaLeftMouseClickAction(self, x, x_rec, y, y_rec, win_pos)
             elif button == mouse.MIDDLE:
-                #print("The MIDDLE mouse button was pressed.", x, x_rec, x_win, y, y_rec, y_win, win_pos)
+                print("The MIDDLE mouse button was pressed.", x, x_rec, x_win, y, y_rec, y_win, win_pos)
                 pass
             elif button == mouse.RIGHT:
-                #print("The RIGHT mouse button was pressed.", x, x_rec, x_win, y, y_rec, y_win, win_pos)
+                print("The RIGHT mouse button was pressed.", x, x_rec, x_win, y, y_rec, y_win, win_pos)
                 ActiveAreaRightMouseClickAction(self, x, x_rec, y, y_rec, win_pos)
 
 
@@ -274,7 +259,7 @@ class Window(pyglet.window.Window):
     def on_mouse_motion(self, x, y, dx, dy):
 
         # don't do anything when something else is happening
-        if (self.no_user_actions == True):
+        if (self.user_actions_allowed == False):
             return ()
 
         img_pix = self.img_pix
@@ -284,9 +269,8 @@ class Window(pyglet.window.Window):
         y_rec = y_win * img_pix
         win_pos = (y_win * self.window_cols) + x_win
 
-        if (win_pos in self.guess_active_squares):
-            self.mouse_win_pos = win_pos
-            ActiveAreaMouseMoveAction(self, x, x_rec, y, y_rec, win_pos)
+        self.mouse_win_pos = win_pos
+        ActiveAreaMouseMoveAction(self, x, x_rec, y, y_rec, win_pos)
 
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):

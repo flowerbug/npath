@@ -13,7 +13,7 @@ import copy
 def new_random_game (self):
 
     print ("New Random Game")
-    self.back_board.bd_randomize (self)
+    self.boards[0].bd_randomize (self)
 
 
 class Tile ():
@@ -53,6 +53,7 @@ class Board ():
         self.do_loaded_board = copy.deepcopy(loaded_board)
         self.batch = batch
         self.group = group
+        self.active_squares = [len(window.boards)]
 
         # make a board of the right size and fill it with the base tile
         # from the sprite list

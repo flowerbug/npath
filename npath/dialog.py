@@ -79,9 +79,9 @@ def Load_NPATH_Version_1 (self, lines_in):
 
     print(lines_in[2])
     print(lines_in[3])
-    self.back_board = Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[2], self.batch, self.background_board_group)
-    self.middle_board = Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[3], self.over_batch, self.foreground_board_group)
-    print ("Load_NPATH_Version_1 -> new values for : R C NB NM", self.game_rows, self.game_cols, self.back_board, self.middle_board)
+    self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[2], self.batch, self.background_board_group))
+    self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[3], self.over_batch, self.foreground_board_group))
+    print ("Load_NPATH_Version_1 -> new values for : R C NB NM", self.game_rows, self.game_cols, self.boards[0], self.boards[1])
 
 
 def LoadGame (self):
@@ -138,7 +138,7 @@ def SaveGame (self):
     print ("Saving Game to File : ", self.this_fn_to_save)
     with open(self.this_fn_to_save, mode="w") as fileout:
 
-        json.dump([["NPATH_Save\n", 1], [self.game_rows, self.game_cols], self.back_board.num_list(), self.middle_board.num_list()], fileout, indent = 4, separators=(',', ': '))
+        json.dump([["NPATH_Save\n", 1], [self.game_rows, self.game_cols], self.boards[0].num_list(), self.boards[1].num_list()], fileout, indent = 4, separators=(',', ': '))
 
     print ("Saved Game to File")
     self.this_fn_to_open = self.this_fn_to_save
@@ -149,7 +149,7 @@ def SaveGame (self):
 def SimpleCheck (self):
     #print ("Simple Check")
     for i in range(len(self.back_board.tiles)):
-        if (self.back_board.tiles[i] != self.middle_board.tiles[i]):
+        if (self.boards[0].tiles[i] != self.boards[1].tiles[i]):
             return (False)
     return (True)
 
