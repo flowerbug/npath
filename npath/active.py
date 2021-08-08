@@ -34,6 +34,10 @@ def ActiveAreaRightMouseClickAction (self, x, x_rec, y, y_rec, win_pos):
 
 def ActiveAreaMouseMoveAction (self, x, x_rec, y, y_rec, win_pos):
 
+    self.square = win_pos
+    if (win_pos in self.boards[self.show_board].active_squares):
+        print ("Board : ", self.show_board, " mouse move noticed over ", win_pos, " which is an active square.", x, y)
+    else:
         pass
 
 
