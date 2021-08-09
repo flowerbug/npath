@@ -11,7 +11,7 @@ from pyglet.window import mouse
 from pyglet import clock
 
 from active import ActiveAreaLeftMouseClickAction, ActiveAreaRightMouseClickAction, ActiveAreaMouseMoveAction
-from board import new_random_game, Board, ResizeBoard
+from board import Board
 from dialog import ChangeLayout, CheckBoard, DeleteSavedGame, LoadGame, SaveGame, ShowAbout
 from version import GetVersion
 
@@ -96,8 +96,8 @@ class Window(pyglet.window.Window):
 
 
         # board size if no saved board exists
-        self.game_rows = 3     # height
-        self.game_cols = 5     # width
+        self.game_rows = 1     # height
+        self.game_cols = 1     # width
 
         # and some testing values
         #self.game_rows = 1    # height
@@ -217,7 +217,66 @@ class Window(pyglet.window.Window):
             self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, True, None, self.batch, self.background_board_group))
             self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, None, self.over_batch, self.foreground_board_group))
 
-        ResizeBoard (self)
+        self.resize (self, None)
+
+
+    def resize (self, window, key):
+
+        print ("Resize")
+
+        # ok, let's see...
+        self.set_visible(True)
+
+        # adjust the boards to fit
+        if (key != None):
+            for x in range(len(self.boards)):
+                self.boards[x].resize (self, key)
+
+        if (key == pyglet.window.key.LEFT):
+            window.game_cols -= 1
+        elif (key == pyglet.window.key.RIGHT):
+            window.game_cols += 1
+        elif (key == pyglet.window.key.UP):
+            window.game_rows += 1
+        elif (key == pyglet.window.key.DOWN):
+            window.game_rows -= 1
+        else:
+            pass
+
+        # where are we now
+        self.game_x, self.game_y = self.get_location()
+
+        self.window_rows = self.game_rows
+        self.window_cols = self.game_cols
+        self.board_squares = self.game_rows*self.game_cols
+        self.window_squares = self.window_rows*self.window_cols
+
+        # have to have at least one
+        if (self.window_squares < 1):
+            self.window_rows = 1
+            self.window_cols = 1
+            self.window_squares = 1
+
+        # adjust the main window size to fit
+
+        self.screen_width = self.window_cols * self.img_pix
+        self.screen_height = self.window_rows * self.img_pix
+
+        self.game_x = (self.full_screen_width - self.screen_width) // 2
+        self.game_y = (self.full_screen_height - self.screen_height) // 2
+
+        self.set_location(self.game_x, self.game_y)
+        self.set_size(self.screen_width, self.screen_height)
+        print ("Resized WL[0] Location\n  X Y       :  ", self.game_x, self.game_y, "\n  Size      :  ", self.screen_width, self.screen_height, " pix\n  Rows Cols :  ", self.game_rows, self.game_cols)
+
+        # attempt to restore keyboard focus to the window
+        self.activate()
+
+
+    def new_random_game (self):
+
+        print ("New Random Game")
+        self.boards[0].bd_randomize (self)
 
 
     def on_draw(self):
@@ -257,6 +316,8 @@ class Window(pyglet.window.Window):
 
 
     def on_mouse_motion(self, x, y, dx, dy):
+
+        return
 
         # don't do anything when something else is happening
         if (self.user_actions_allowed == False):
@@ -320,7 +381,7 @@ class Window(pyglet.window.Window):
             SaveGame (self)
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F8)):
             print ("The 'F8' key was pressed")
-            new_random_game (self)
+            self.new_random_game ()
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F10)):
             print ("The 'F10' key was pressed")
             CheckBoard (self)
@@ -329,27 +390,19 @@ class Window(pyglet.window.Window):
             DeleteSavedGame (self)
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.LEFT)):
             if self.game_cols > self.min_cols:
-                self.game_rows = self.game_rows
-                self.game_cols = self.game_cols - 1
-                self.do_random_board = True
+                self.resize (self, pyglet.window.key.LEFT)
             print ("The 'LEFT' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.RIGHT)):
             if self.game_cols < self.max_cols:
-                self.game_rows = self.game_rows
-                self.game_cols = self.game_cols + 1
-                self.do_random_board = True
+                self.resize (self, pyglet.window.key.RIGHT)
             print ("The 'RIGHT' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.UP)):
             if self.game_rows < self.max_rows:
-                self.game_rows = self.game_rows + 1
-                self.game_cols = self.game_cols
-                self.do_random_board = True
+                self.resize (self, pyglet.window.key.UP)
             print ("The 'UP' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.DOWN)):
             if self.game_rows > self.min_rows:
-                self.game_rows = self.game_rows - 1
-                self.game_cols = self.game_cols
-                self.do_random_board = True
+                self.resize (self, pyglet.window.key.DOWN)
             print ("The 'DOWN' key was pressed")
         else:
            pass

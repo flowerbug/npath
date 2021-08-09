@@ -10,12 +10,6 @@ import pyglet
 import copy
 
 
-def new_random_game (self):
-
-    print ("New Random Game")
-    self.boards[0].bd_randomize (self)
-
-
 class Tile ():
 
 
@@ -49,6 +43,7 @@ class Board ():
         self.board_width = width
         self.tile_height = tile_height
         self.tile_width = tile_width
+        self.is_random_board = random_board
         self.do_random_board = random_board
         self.do_loaded_board = copy.deepcopy(loaded_board)
         self.batch = batch
@@ -60,21 +55,20 @@ class Board ():
         self.tiles = []
         for y in range (height):
             for x in range (width):
-                tile_c = Tile(window, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group)
-                self.tiles.append (tile_c)
+                self.tiles.append (Tile (window, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
                 self.tiles[-1].spr.x = x * self.tile_width
                 self.tiles[-1].spr.y = y * self.tile_height
                 self.tiles[-1].spr.visible = True
 
         # if it is a random board replace the base tiles
         if (self.do_random_board == True):
-            print ("Random Board in Class Board")
+            #print ("Random Board in Class Board")
             self.bd_randomize (window)
             self.do_random_board = False
 
         # if it is a board to create from a list use those numbers instead
         elif (self.do_loaded_board != None):
-            print ("Loaded Board in Class Board", self.do_loaded_board)
+            #print ("Loaded Board in Class Board", self.do_loaded_board)
             if (len(self.do_loaded_board) == len(self.tiles)):
                 for x in range(len(self.do_loaded_board)):
                     self.tiles[x].set_img (self.do_loaded_board[x], window.sprite_list[self.do_loaded_board[x]][0])
@@ -162,40 +156,103 @@ class Board ():
             self.tiles[x].set_img (randchance, window.sprite_list[randchance][0])
 
 
-def ResizeBoard (self):
+    def add_row (self, window):
 
-    print ("Resize Board")
+        #print ("Add Row  BH  : ", self.board_height)
+        y = self.board_height
+        for x in range(self.board_width):
+            if (self.is_random_board == False):
+                self.tiles.append (Tile (window, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
+                self.tiles[-1].spr.x = x * self.tile_width
+                self.tiles[-1].spr.y = y * self.tile_height
+                self.tiles[-1].spr.visible = True
 
-    # ok, let's see...
-    self.set_visible(True)
+            else:
+                self.tiles.append (Tile (window, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
+                randchance = random.randint (1, len (window.sprite_list) - 1)
+                self.tiles[-1].set_img (randchance, window.sprite_list[randchance][0])
+                self.tiles[-1].spr.x = x * self.tile_width
+                self.tiles[-1].spr.y = y * self.tile_height
+                self.tiles[-1].spr.visible = True
 
-    # where are we now
-    self.game_x, self.game_y = self.get_location()
+        self.board_height += 1
+        #print (self)
 
-    self.window_rows = self.game_rows
-    self.window_cols = self.game_cols
-    self.board_squares = self.game_rows*self.game_cols
-    self.window_squares = self.window_rows*self.window_cols
 
-    # have to have at least one
-    if (self.window_squares < 1):
-        self.window_rows = 1
-        self.window_cols = 1
-        self.window_squares = 1
+    def add_col (self, window):
 
-    # adjust the main window size to fit
+        #print (self)
+        tile_ind = len(self.tiles)
+        x = self.board_width
+        for y in range(self.board_height-1, -1, -1):
+            #print (" X Y ind : ", x, y, tile_ind)
+            if (self.is_random_board == False):
+                self.tiles.insert (tile_ind, Tile (window, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
+                self.tiles[tile_ind].spr.x = x * self.tile_width
+                self.tiles[tile_ind].spr.y = y * self.tile_height
+                self.tiles[tile_ind].spr.visible = True
+            else:
+                self.tiles.insert (tile_ind, Tile (window, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
+                randchance = random.randint (1, len (window.sprite_list) - 1)
+                self.tiles[tile_ind].set_img (randchance, window.sprite_list[randchance][0])
+                self.tiles[tile_ind].spr.x = x * self.tile_width
+                self.tiles[tile_ind].spr.y = y * self.tile_height
+                self.tiles[tile_ind].spr.visible = True
+            tile_ind -= self.board_width
+            y -= 1
 
-    self.screen_width = (self.window_cols * self.img_pix)
-    self.screen_height = (self.window_rows * self.img_pix)
+        self.board_width += 1
+        #print (self)
 
-    self.game_x = (self.full_screen_width - self.screen_width) // 2
-    self.game_y = (self.full_screen_height - self.screen_height) // 2
 
-    self.set_location(self.game_x, self.game_y)
-    self.set_size(self.screen_width, self.screen_height)
-    print ("Resized WL[0] Location\n  X Y       :  ", self.game_x, self.game_y, "\n  Size      :  ", self.screen_width, self.screen_height, " pix\n  Rows Cols :  ", self.game_rows, self.game_cols)
-    # ok, let's see...
-    self.set_visible(True)
+    def del_row (self, window):
 
-    # attempt to restore keyboard focus to the window
-    self.activate()
+        #print (self)
+        del self.tiles[-self.board_width:]
+        self.board_height -= 1
+        #print (self)
+
+
+    def del_col (self, window):
+
+        #print (self)
+        del self.tiles[self.board_width-1:len(self.tiles):self.board_width]
+        self.board_width -= 1
+        #print (self)
+
+
+    def resize (self, window, key):
+
+        if (key == None):
+            return
+
+        old_size = len(self.tiles)
+
+        if (key == pyglet.window.key.LEFT):
+            new_rows = window.game_rows
+            new_cols = window.game_cols - 1
+        elif (key == pyglet.window.key.RIGHT):
+            new_rows = window.game_rows
+            new_cols = window.game_cols + 1
+        elif (key == pyglet.window.key.UP):
+            new_rows = window.game_rows + 1
+            new_cols = window.game_cols
+        elif (key == pyglet.window.key.DOWN):
+            new_rows = window.game_rows - 1
+            new_cols = window.game_cols
+        new_size = new_rows * new_cols
+
+        if (new_size == old_size):
+            return
+        elif (new_size > old_size):
+            if (key == pyglet.window.key.RIGHT):
+                self.add_col (window)
+            elif (key == pyglet.window.key.UP):
+                self.add_row (window)
+        else:
+            if (key == pyglet.window.key.LEFT):
+                self.del_col (window)
+            elif (key == pyglet.window.key.DOWN):
+                self.del_row (window)
+
+
