@@ -10,7 +10,7 @@ import copy
 import json
 from pathlib import Path
 
-from board import Board, ResizeBoard
+from board import Board
 from version import GetVersion
 
 
