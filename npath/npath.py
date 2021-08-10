@@ -16,6 +16,109 @@ from dialog import ChangeLayout, CheckBoard, DeleteSavedGame, LoadGame, SaveGame
 from version import GetVersion
 
 
+def load_and_generate_or_resize_images (self):
+
+    # this can be called more than once (when someone increases or
+    # decreases img_pix).
+    print ("Basic Tile and Image Size : ", str(self.img_pix) + " x " + str(self.img_pix) + " pixels")
+
+    # the path to the images
+    try:
+        self.png_path
+    except:
+        self.png_path = os.path.dirname(__file__) + "/graphics/"
+
+    # colors
+    color_list = [
+        (  0,   0,   0, 255),  # black
+        (255,   0,   0, 255),  # red
+        (  0, 255,   0, 255),  # green
+        (  0,   0, 255, 255),  # blue
+        (128,   0, 128, 255),  # purple
+        (255, 165,   0, 255),  # orange
+        (255, 255,   0, 255),  # yellow
+        (  0, 255, 255, 255),  # cyan
+        (255,   0, 255, 255),  # fuchia
+        (255, 192, 203, 255),  # pink
+        ( 34, 139,  34, 255),  # forestgreen
+        (211, 211, 211, 255),  # lightgray
+        (160,  82,  45, 255),  # sienna
+        (128, 128, 128, 255),  # gray
+        ( 65, 105, 225, 255),  # royalblue
+        (135, 206, 235, 255),  # skyblue
+        (  0,   0, 139, 255),  # darkblue
+        (135, 135, 135, 255)
+        ]
+
+    print("Length of color list : ", len(color_list))
+
+    # tanish tile uses color (204 150 77) 64x64 pixels.  the two lines
+    # commented out were ones used to create and save the initial image
+    # and then i used gimp to put a border on it.
+    #
+    # instead of being limited to certain sized images it would be fun
+    # to figure out how to do all of these as img_pix changes so not to
+    # require all of these files be created...  but for now the sizes
+    # have to be done manually.
+    #
+    #self.game_tile_image = pyglet.image.SolidColorImagePattern(color=(204, 150, 77, 255)).create_image(width=self.img_pix, height=self.img_pix)
+    #self.game_tile_image.save(self.png_path + "misc/gen_tile.png")
+    try:
+        del self.base_image
+    except:
+        pass
+
+    f_name = str(self.png_path) + "misc/tile_" + str(self.img_pix) + ".png"
+    print("f_name : ", f_name)
+    path = Path(f_name)
+    if (path.is_file() == True):
+        self.base_image = pyglet.image.load(path)
+    else:
+        self.base_image = pyglet.image.SolidColorImagePattern(color=(204, 150, 77, 255)).create_image(width=self.img_pix, height=self.img_pix)
+
+    print ("self.base_image : ", self.base_image)
+
+    # the first sprite make from the base_tile after that add 
+    # all the images of colors from the above color_list
+    try:
+        self.image_list
+    except:
+        self.image_list = []
+        self.image_list.append(self.base_image)
+        for i in range(len(color_list)):
+            image = pyglet.image.SolidColorImagePattern(color=color_list[i]).create_image(width=self.img_pix, height=self.img_pix)
+            self.image_list.append(image)
+    else:
+        # replace images in the list with different sized images
+       self.image_list[0] = self.base_image
+       for i in range(len(color_list)):
+           image = pyglet.image.SolidColorImagePattern(color=color_list[i]).create_image(width=self.img_pix, height=self.img_pix)
+           self.image_list[i+1] = image
+
+    print("Length of self.image_list : ", len(self.image_list))
+
+    # green cube uses color (18, 239, 0) 50x50 pixels (centered in 64x64)
+    try:
+        self.gcube_image
+    except:
+        self.gcube_image = pyglet.image.load(self.png_path + "misc/gcube.png")
+
+        # useful things that i want to remember
+        #self.gcube_image = pyglet.image.SolidColorImagePattern(color=(18, 239, 0, 255)).create_image(width=self.img_pix, height=self.img_pix)
+        #self.gcube_image.save(self.png_path + "misc/gen_gcube.png")
+
+    # pink cube uses color (237, 13, 255) 34x34 pixels (centered in 64x64)
+    try:
+        self.cube_image
+    except:
+        self.cube_image = pyglet.image.load(self.png_path + "misc/cube.png")
+
+        # more useful things that i want to remember
+        #self.cube_image = pyglet.image.SolidColorImagePattern(color=(237, 13, 255, 255)).create_image(width=self.img_pix, height=self.img_pix)
+        #self.cube_image.save(self.png_path + "misc/gen_cube.png")
+        #self.cube_image = pyglet.shapes.BorderedRectangle(0, 0, width=self.img_pix, height=self.img_pix, border=20, color=(237, 13, 255), border_color=(0, 0, 0))
+
+
 class Window(pyglet.window.Window):
 
 
@@ -38,31 +141,6 @@ class Window(pyglet.window.Window):
         print("Npath version  : ", GetVersion())
 
 
-        # the path to the images
-        self.png_path = os.path.dirname(__file__) + "/graphics/"
-
-        # colors
-        self.color_list = [
-            (  0,   0,   0, 255),  # black
-            (255,   0,   0, 255),  # red
-            (  0, 255,   0, 255),  # green
-            (  0,   0, 255, 255),  # blue
-            (128,   0, 128, 255),  # purple
-            (255, 165,   0, 255),  # orange
-            (255, 255,   0, 255),  # yellow
-            (  0, 255, 255, 255),  # cyan
-            (255,   0, 255, 255),  # fuchia
-            (255, 192, 203, 255),  # pink
-            ( 34, 139,  34, 255),  # forestgreen
-            (211, 211, 211, 255),  # lightgray
-            (160,  82,  45, 255),  # sienna
-            (128, 128, 128, 255),  # gray
-            ( 65, 105, 225, 255),  # royalblue
-            (135, 206, 235, 255),  # skyblue
-            (  0,   0, 139, 255),  # darkblue
-            (135, 135, 135, 255)
-            ]
-
         #   save game location and initial file
         # you can always save/load other names, 
         # this is just a suggestion...
@@ -81,9 +159,18 @@ class Window(pyglet.window.Window):
             print ("  Npath doesn't know where to set data_path for OS : ", os.name)
             print ("This is where a user would save their games.")
 
+        # these are the list of sizes, only some of these are bordered tiles 
+        #   the too small ones (1, 2, 4) you can't see them anyways and
+        #   the biggest one (1024) i'm not sure anyone would use that...
+        self.pix_list = [1, 2, 4, 8, 16, 32, 64, 96, 128, 256, 512, 1024]
+        self.pix_index = 6
+        self.img_pix = self.pix_list[self.pix_index]        # default 64
 
-        # the window, board and tile basic unit of size
-        self.img_pix = 64
+        # any other value than in self.pix_list will work but the
+        # initial screen will all be the flat images, you won't know
+        # where the squares are at...  down to 1 pixel or as big as 
+        # you'd like to try to see if your machine can handle it.
+        # 1 pixel sized large games take a while to generate or change.
 
 
         # some limits and testing values
@@ -91,13 +178,13 @@ class Window(pyglet.window.Window):
         self.min_rows = 1     # must be 1 or greater
         self.min_cols = 1     #
 
-        self.max_rows = 50    # for temporary testing - i don't know how big
-        self.max_cols = 50    #    a value i can put in here.
+        self.max_rows = 100    # for temporary testing - i don't know how big
+        self.max_cols = 100    #    a value i can put in here.
 
 
         # board size if no saved board exists
-        self.game_rows = 1     # height
-        self.game_cols = 1     # width
+        self.game_rows = 6    # height
+        self.game_cols = 8    # width
 
         # and some testing values
         #self.game_rows = 1    # height
@@ -117,13 +204,13 @@ class Window(pyglet.window.Window):
         self.top_screen = self.top_display.get_default_screen()
         self.full_screen_width = self.top_screen.width
         self.full_screen_height = self.top_screen.height
-        print ("Full Window Size :  ", self.full_screen_width, "x", self.full_screen_height, " pix")
+        print ("Full Window Size :  ", self.full_screen_width, "x", self.full_screen_height, " pixels")
         self.windows_lst = self.top_display.get_windows()
         self.wl0 = self.windows_lst[0]
         self.screen_width = self.windows_lst[0].width
         self.screen_height = self.windows_lst[0].height
         self.x, self.y = self.windows_lst[0].get_location()
-        print ("WL[0] Location\n  X Y       :  ", self.x, self.y, "\n  Size      :  ", self.screen_width, self.screen_height, " pix\n  Rows Cols :  ", self.game_rows, self.game_cols)
+        print ("WL[0] Location\n  X Y       :  ", self.x, self.y, "\n  Size      :  ", self.screen_width, self.screen_height, " pixels\n  Rows Cols :  ", self.game_rows, self.game_cols)
 
         # initial window is blank and flickers i don't want 
         # to see it until it is resized later
@@ -158,34 +245,8 @@ class Window(pyglet.window.Window):
         self.background_board_group = pyglet.graphics.Group(0)
         self.foreground_board_group = pyglet.graphics.Group(1)
 
-        # background images : white, blue
-        self.white_bg_image = pyglet.image.SolidColorImagePattern(color=(255,255,255,255)).create_image(width=self.img_pix, height=self.img_pix)
-        self.blue_bg_image = pyglet.image.SolidColorImagePattern(color=(173,216,230,255)).create_image(width=self.img_pix, height=self.img_pix)
-
-        # tanish tile uses color (204 150 77) 64x64 pixels
-        #self.game_tile_image = pyglet.image.SolidColorImagePattern(color=(204, 150, 77, 255)).create_image(width=self.img_pix, height=self.img_pix)
-        #self.game_tile_image = pyglet.image.load(self.png_path + "misc/tile.png")
-        self.base_img = pyglet.image.load(self.png_path + "misc/tile.png")
-        #self.game_tile_image.save(self.png_path + "misc/tile.png")
-
-        # green cube uses color (18, 239, 0) 50x50 pixels
-        self.gcube_image = pyglet.image.load(self.png_path + "misc/gcube.png")
-        #self.gcube_image = pyglet.image.SolidColorImagePattern(color=(18, 239, 0, 255)).create_image(width=self.img_pix, height=self.img_pix)
-        #self.gcube_image.save(self.png_path + "misc/gcube.png")
-
-        # pink cube uses color (237, 13, 255) 34x34 pixels
-        self.cube_image = pyglet.image.load(self.png_path + "misc/cube.png")
-        #self.cube_image = pyglet.image.SolidColorImagePattern(color=(237, 13, 255, 255)).create_image(width=self.img_pix, height=self.img_pix)
-        #self.cube_image.save(self.png_path + "misc/cube.png")
-        #self.cube_image = pyglet.shapes.BorderedRectangle(0, 0, width=self.img_pix, height=self.img_pix, border=20, color=(237, 13, 255), border_color=(0, 0, 0))
-
-        self.sprite_list = []
-        sprite = pyglet.sprite.Sprite(self.base_img)
-        self.sprite_list.append([self.base_img, sprite])
-        for i in range(len(self.color_list)):
-            image = pyglet.image.SolidColorImagePattern(color=self.color_list[i]).create_image(width=self.img_pix, height=self.img_pix)
-            sprite = pyglet.sprite.Sprite(image)
-            self.sprite_list.append([image, sprite])
+        # these can change based upon size of img_pix
+        load_and_generate_or_resize_images (self)
 
         self.cube_sprites = []
         # put the gcube and cube someplace.
@@ -217,10 +278,10 @@ class Window(pyglet.window.Window):
             self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, True, None, self.batch, self.background_board_group))
             self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, None, self.over_batch, self.foreground_board_group))
 
-        self.resize (self, None)
+        self.my_resize (self, None)
 
 
-    def resize (self, window, key):
+    def my_resize (self, window, key):
 
         print ("Resize")
 
@@ -267,10 +328,17 @@ class Window(pyglet.window.Window):
 
         self.set_location(self.game_x, self.game_y)
         self.set_size(self.screen_width, self.screen_height)
-        print ("Resized WL[0] Location\n  X Y       :  ", self.game_x, self.game_y, "\n  Size      :  ", self.screen_width, self.screen_height, " pix\n  Rows Cols :  ", self.game_rows, self.game_cols)
+        print ("Resized WL[0] Location\n  X Y       :  ", self.game_x, self.game_y, "\n  Size      :  ", self.screen_width, self.screen_height, " pixels\n  Rows Cols :  ", self.game_rows, self.game_cols)
 
         # attempt to restore keyboard focus to the window
         self.activate()
+
+
+    def redraw (self):
+        for x in range(len(self.boards)):
+            self.boards[x].tile_height = self.img_pix
+            self.boards[x].tile_width = self.img_pix
+            self.boards[x].redraw (self.image_list)
 
 
     def new_random_game (self):
@@ -279,6 +347,10 @@ class Window(pyglet.window.Window):
         self.boards[0].bd_randomize (self)
 
 
+#    def on_resize (self, width, height):
+#        pass
+#
+#
     def on_draw(self):
         self.render()
 
@@ -316,8 +388,6 @@ class Window(pyglet.window.Window):
 
 
     def on_mouse_motion(self, x, y, dx, dy):
-
-        return
 
         # don't do anything when something else is happening
         if (self.user_actions_allowed == False):
@@ -390,20 +460,36 @@ class Window(pyglet.window.Window):
             DeleteSavedGame (self)
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.LEFT)):
             if self.game_cols > self.min_cols:
-                self.resize (self, pyglet.window.key.LEFT)
+                self.my_resize (self, pyglet.window.key.LEFT)
             print ("The 'LEFT' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.RIGHT)):
             if self.game_cols < self.max_cols:
-                self.resize (self, pyglet.window.key.RIGHT)
+                self.my_resize (self, pyglet.window.key.RIGHT)
             print ("The 'RIGHT' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.UP)):
             if self.game_rows < self.max_rows:
-                self.resize (self, pyglet.window.key.UP)
+                self.my_resize (self, pyglet.window.key.UP)
             print ("The 'UP' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.DOWN)):
             if self.game_rows > self.min_rows:
-                self.resize (self, pyglet.window.key.DOWN)
+                self.my_resize (self, pyglet.window.key.DOWN)
             print ("The 'DOWN' key was pressed")
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.NUM_ADD)):
+            print ("The 'NUM_ADD' key was pressed")
+            if (self.pix_index < len(self.pix_list)-1):
+                self.pix_index += 1
+                self.img_pix = self.pix_list[self.pix_index]
+                load_and_generate_or_resize_images (self)
+                self.my_resize (self, None)
+                self.redraw ()
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.NUM_SUBTRACT)):
+            print ("The 'NUM_SUBTRACT' key was pressed")
+            if (self.pix_index > 0):
+                self.pix_index -= 1
+                self.img_pix = self.pix_list[self.pix_index]
+                load_and_generate_or_resize_images (self)
+                self.my_resize (self, None)
+                self.redraw ()
         else:
            pass
 
