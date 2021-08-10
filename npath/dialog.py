@@ -49,6 +49,8 @@ def ShowAbout (self):
         + "\n"
         + "    'Arrow Keys'        : Increase or Decrease Columns and Rows\n"
         + "\n"
+        + "    NumPad '+' '-' Keys : Increase or Decrease Tile Size\n"
+        + "\n"
         + "\n"
         + "    'F6'                : Load Game From File\n"
         + "    'F7'                : Save Game To File\n"
