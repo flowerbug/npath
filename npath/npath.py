@@ -39,6 +39,7 @@ def load_and_generate_or_resize_images (self):
         (255, 255,   0, 255),  # yellow
         (  0, 255, 255, 255),  # cyan
         (255,   0, 255, 255),  # fuchia
+        (255, 255, 255, 255),  # white
         (255, 192, 203, 255),  # pink
         ( 34, 139,  34, 255),  # forestgreen
         (211, 211, 211, 255),  # lightgray
@@ -95,7 +96,7 @@ def load_and_generate_or_resize_images (self):
            image = pyglet.image.SolidColorImagePattern(color=color_list[i]).create_image(width=self.img_pix, height=self.img_pix)
            self.image_list[i+1] = image
 
-    print("Length of self.image_list : ", len(self.image_list))
+    print("Length of self.image_list : ", len(self.image_list), "  Base tile image is always image 0")
 
     # green cube uses color (18, 239, 0) 50x50 pixels (centered in 64x64)
     try:
@@ -162,7 +163,7 @@ class Window(pyglet.window.Window):
         # these are the list of sizes, only some of these are bordered tiles 
         #   the too small ones (1, 2, 4) you can't see them anyways and
         #   the biggest one (1024) i'm not sure anyone would use that...
-        self.pix_list = [1, 2, 4, 8, 16, 32, 64, 96, 128, 256, 512, 1024]
+        self.pix_list = [1, 2, 4, 8, 16, 32, 64, 96, 128, 192, 256, 512, 1024]
         self.pix_index = 6
         self.img_pix = self.pix_list[self.pix_index]        # default 64
 
@@ -183,8 +184,8 @@ class Window(pyglet.window.Window):
 
 
         # board size if no saved board exists
-        self.game_rows = 6    # height
-        self.game_cols = 8    # width
+        self.game_rows = 6     # height
+        self.game_cols = 8     # width
 
         # and some testing values
         #self.game_rows = 1    # height
@@ -234,16 +235,18 @@ class Window(pyglet.window.Window):
         self.batch = pyglet.graphics.Batch()
         self.over_batch = pyglet.graphics.Batch()
 
-        self.fixed_batch = pyglet.graphics.Batch()
-        self.fixed_board_batch = pyglet.graphics.Batch()
         self.pointer_bottom_batch = pyglet.graphics.Batch()
         self.pointer_middle_batch = pyglet.graphics.Batch()
         self.pointer_top_batch = pyglet.graphics.Batch()
 
 
         # groups for rendering
-        self.background_board_group = pyglet.graphics.Group(0)
-        self.foreground_board_group = pyglet.graphics.Group(1)
+        if (pyglet.version.startswith("1.5.") == True):
+            self.background_board_group = pyglet.graphics.OrderedGroup(0)
+            self.foreground_board_group = pyglet.graphics.OrderedGroup(1)
+        else:
+            self.background_board_group = pyglet.graphics.Group(0)
+            self.foreground_board_group = pyglet.graphics.Group(1)
 
         # these can change based upon size of img_pix
         load_and_generate_or_resize_images (self)
@@ -275,15 +278,15 @@ class Window(pyglet.window.Window):
             random.seed()
             self.do_random_board = True
 
-            self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, True, None, self.batch, self.background_board_group))
             self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, None, self.over_batch, self.foreground_board_group))
+            self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, True, None, self.batch, self.background_board_group))
 
-        self.my_resize (self, None)
+        self.my_resize (None)
 
 
-    def my_resize (self, window, key):
+    def my_resize (self, key):
 
-        print ("Resize")
+        print ("my_resize")
 
         # ok, let's see...
         self.set_visible(True)
@@ -294,15 +297,13 @@ class Window(pyglet.window.Window):
                 self.boards[x].resize (self, key)
 
         if (key == pyglet.window.key.LEFT):
-            window.game_cols -= 1
+            self.game_cols -= 1
         elif (key == pyglet.window.key.RIGHT):
-            window.game_cols += 1
+            self.game_cols += 1
         elif (key == pyglet.window.key.UP):
-            window.game_rows += 1
+            self.game_rows += 1
         elif (key == pyglet.window.key.DOWN):
-            window.game_rows -= 1
-        else:
-            pass
+            self.game_rows -= 1
 
         # where are we now
         self.game_x, self.game_y = self.get_location()
@@ -326,8 +327,8 @@ class Window(pyglet.window.Window):
         self.game_x = (self.full_screen_width - self.screen_width) // 2
         self.game_y = (self.full_screen_height - self.screen_height) // 2
 
-        self.set_location(self.game_x, self.game_y)
         self.set_size(self.screen_width, self.screen_height)
+        self.set_location(self.game_x, self.game_y)
         print ("Resized WL[0] Location\n  X Y       :  ", self.game_x, self.game_y, "\n  Size      :  ", self.screen_width, self.screen_height, " pixels\n  Rows Cols :  ", self.game_rows, self.game_cols)
 
         # attempt to restore keyboard focus to the window
@@ -344,13 +345,9 @@ class Window(pyglet.window.Window):
     def new_random_game (self):
 
         print ("New Random Game")
-        self.boards[0].bd_randomize (self)
+        self.boards[1].bd_randomize (self)
 
 
-#    def on_resize (self, width, height):
-#        pass
-#
-#
     def on_draw(self):
         self.render()
 
@@ -460,19 +457,19 @@ class Window(pyglet.window.Window):
             DeleteSavedGame (self)
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.LEFT)):
             if self.game_cols > self.min_cols:
-                self.my_resize (self, pyglet.window.key.LEFT)
+                self.my_resize (pyglet.window.key.LEFT)
             print ("The 'LEFT' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.RIGHT)):
             if self.game_cols < self.max_cols:
-                self.my_resize (self, pyglet.window.key.RIGHT)
+                self.my_resize (pyglet.window.key.RIGHT)
             print ("The 'RIGHT' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.UP)):
             if self.game_rows < self.max_rows:
-                self.my_resize (self, pyglet.window.key.UP)
+                self.my_resize (pyglet.window.key.UP)
             print ("The 'UP' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.DOWN)):
             if self.game_rows > self.min_rows:
-                self.my_resize (self, pyglet.window.key.DOWN)
+                self.my_resize (pyglet.window.key.DOWN)
             print ("The 'DOWN' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.NUM_ADD)):
             print ("The 'NUM_ADD' key was pressed")
@@ -480,7 +477,7 @@ class Window(pyglet.window.Window):
                 self.pix_index += 1
                 self.img_pix = self.pix_list[self.pix_index]
                 load_and_generate_or_resize_images (self)
-                self.my_resize (self, None)
+                self.my_resize (None)
                 self.redraw ()
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.NUM_SUBTRACT)):
             print ("The 'NUM_SUBTRACT' key was pressed")
@@ -488,8 +485,10 @@ class Window(pyglet.window.Window):
                 self.pix_index -= 1
                 self.img_pix = self.pix_list[self.pix_index]
                 load_and_generate_or_resize_images (self)
-                self.my_resize (self, None)
+                self.my_resize (None)
                 self.redraw ()
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.P)):
+            print(self.boards[self.show_board])
         else:
            pass
 
@@ -512,18 +511,21 @@ class Window(pyglet.window.Window):
 
         self.batch.draw()
         self.over_batch.draw()
-        self.fixed_batch.draw()
-        self.fixed_board_batch.draw()
         self.pointer_bottom_batch.draw()
         self.pointer_middle_batch.draw()
         self.pointer_top_batch.draw()
 
-        self.fps.draw()
+        #self.fps.draw()
 
 
 def main():
 
     window = Window(width=1, height=1, caption="Npath", resizable=True, fullscreen=False, visible=False)
+
+    @window.event
+    def on_resize (width, height):
+        print ("on_resize : ", width, height)
+
 
     pyglet.clock.schedule_interval(window.update, 1/60.0) # update at 60Hz
     pyglet.app.run()
