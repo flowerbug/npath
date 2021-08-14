@@ -223,7 +223,7 @@ class Board ():
         #print (self)
 
 
-    def resize (self, window, key):
+    def board_resize (self, window, key):
 
         if (key == None):
             return
