@@ -200,9 +200,10 @@ class Window(pyglet.window.Window):
         #   the too small ones (1, 2, 4) you can't see them anyways and
         #   the biggest one (1024) i'm not sure anyone would use that...
         self.pix_list = [1, 2, 4, 8, 10, 16, 32, 50, 64, 96, 100, 128, 150, 192, 200, 256, 300, 512, 750, 1024]
-        self.pix_index = 10
-        #self.pix_index = 8
-        self.img_pix = self.pix_list[self.pix_index]        # default 64
+        self.pix_index = 10                                  # 1
+        #self.pix_index = 10                                # 100
+        #self.pix_index = 8                                 # 64
+        self.img_pix = self.pix_list[self.pix_index]
         self.wiggle_room = self.img_pix // 2
 
         # on_resize is called initially so we need to check for this flag
@@ -227,8 +228,8 @@ class Window(pyglet.window.Window):
 
 
         # board size if no saved board exists
-        self.game_rows = 1       # height
-        self.game_cols = 1       # width
+        self.game_rows = 3       # height
+        self.game_cols = 4       # width
 
         # and some testing values
         #self.game_rows = 1    # height
@@ -331,8 +332,9 @@ class Window(pyglet.window.Window):
         self.set_visible (True)
 
         # where are we now
-        self.game_x, self.game_y = self.get_location ()
-        print ("  Loc Pre  X Y : ", self.game_x, self.game_y, "  W H : ", self.screen_width, self.screen_height)
+        self.x, self.y = self.get_location ()
+        self.screen_width, self.screen_height = self.get_size ()
+        print ("  Loc Pre  X Y : ", self.x, self.y, "  W H : ", self.screen_width, self.screen_height)
 
         # adjust the boards to fit
         if (key != None):
@@ -366,13 +368,13 @@ class Window(pyglet.window.Window):
         self.screen_width = self.window_cols * self.img_pix
         self.screen_height = self.window_rows * self.img_pix
 
-        self.game_x = (self.full_screen_width - self.screen_width) // 2
-        self.game_y = (self.full_screen_height - self.screen_height) // 2
-        print ("  Loc Post X Y : ", self.game_x, self.game_y, "  W H : ", self.screen_width, self.screen_height)
+        self.x = (self.full_screen_width - self.screen_width) // 2
+        self.y = (self.full_screen_height - self.screen_height) // 2
+        print ("  Loc Post X Y : ", self.x, self.y, "  W H : ", self.screen_width, self.screen_height)
 
         self.set_size (self.screen_width, self.screen_height)
-        self.set_location (self.game_x, self.game_y)
-        print ("Resized WL[0] Location\n  X Y       :  ", self.game_x, self.game_y, "\n  Size      :  ", self.screen_width, self.screen_height, " pixels\n  Rows Cols :  ", self.game_rows, self.game_cols)
+        self.set_location (self.x, self.y)
+        print ("Resized WL[0] Location\n  X Y       :  ", self.x, self.y, "\n  Size      :  ", self.screen_width, self.screen_height, " pixels\n  Rows Cols :  ", self.game_rows, self.game_cols)
 
         # attempt to restore keyboard focus to the window
         self.activate ()
@@ -501,7 +503,7 @@ class Window(pyglet.window.Window):
                 self.foreground_board_group.visible = False
                 self.cube.visible = True
                 self.gcube.visible = False
-                self.user_actions_allowed = False
+                self.user_actions_allowed = True
             print ("The 'F2' key was pressed, show board changed to ", self.show_board)
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F6)):
             print ("The 'F6' key was pressed")
