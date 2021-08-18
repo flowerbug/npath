@@ -122,48 +122,6 @@ def load_and_generate_or_resize_images (self):
         #self.cube_image = pyglet.shapes.BorderedRectangle(0, 0, width=self.img_pix, height=self.img_pix, border=20, color=(237, 13, 255), border_color=(0, 0, 0))
 
 
-def w_on_resize (self, width, height):
-
-    print ("\nw_on_resize W H : ", width, height)
-    print ("Wiggle Room       : ", self.wiggle_room)
-    print ("Do Resize         : ", self.do_resize)
-    print ("Screen W H        : ", self.screen_width, self.screen_height)
-    print ("UI input allowed  : ", self.user_actions_allowed)
-
-    if (self.user_actions_allowed == False):
-        return
-
-    if (self.do_resize == False):
-        self.do_resize = True
-        return
-
-    print ("Here C R : ", self.game_cols, self.game_rows)
-    if (width > (self.screen_width + self.wiggle_room)):
-        if (self.game_cols < self.max_cols):
-            print ("Growing Wider")
-            self.window_resize (pyglet.window.key.RIGHT)
-        else:
-            self.game_cols = self.max_cols
-    elif (width < (self.screen_width - self.wiggle_room)):
-        if (self.game_cols > self.min_cols):
-            print ("Getting Skinny")
-            self.window_resize (pyglet.window.key.LEFT)
-        else:
-            self.game_cols = self.min_cols
-    elif (height > (self.screen_height + self.wiggle_room)):
-        if (self.game_rows < self.max_rows):
-            print ("Growing Taller")
-            self.window_resize (pyglet.window.key.UP)
-        else:
-            self.game_rows = self.max_rows
-    elif (height < (self.screen_height - self.wiggle_room)):
-        if (self.game_rows > self.min_rows):
-            print ("Getting Shorter")
-            self.window_resize (pyglet.window.key.DOWN)
-        else:
-            self.game_rows = self.min_rows
-
-
 class Window(pyglet.window.Window):
 
 
@@ -200,16 +158,11 @@ class Window(pyglet.window.Window):
         #   the too small ones (1, 2, 4) you can't see them anyways and
         #   the biggest one (1024) i'm not sure anyone would use that...
         self.pix_list = [1, 2, 4, 8, 10, 16, 32, 50, 64, 96, 100, 128, 150, 192, 200, 256, 300, 512, 750, 1024]
-        self.pix_index = 10                                  # 1
+        self.pix_index = 8
         #self.pix_index = 10                                # 100
         #self.pix_index = 8                                 # 64
         self.img_pix = self.pix_list[self.pix_index]
         self.wiggle_room = self.img_pix // 2
-
-        # on_resize is called initially so we need to check for this flag
-        # and skip that one, but also later on we only need to resize when
-        # something has happened so we use this flag to trigger it.
-        self.do_resize = False
 
         # any other value than in self.pix_list will work but the
         # initial screen will all be the flat images, you won't know
@@ -223,13 +176,13 @@ class Window(pyglet.window.Window):
         self.min_rows = 1     # must be 1 or greater
         self.min_cols = 1     #
 
-        self.max_rows = 100    # for temporary testing - i don't know how big
-        self.max_cols = 100    #    a value i can put in here.
+        self.max_rows = 15    # for temporary testing - i don't know how big
+        self.max_cols = 30    #    a value i can put in here.
 
 
         # board size if no saved board exists
-        self.game_rows = 3       # height
-        self.game_cols = 4       # width
+        self.game_rows = 12      # height
+        self.game_cols = 18      # width
 
         # and some testing values
         #self.game_rows = 1    # height
@@ -267,8 +220,10 @@ class Window(pyglet.window.Window):
         self.key = pyglet.window.key
 
         self.mouse_win_pos = 0
-
-        self.fps = pyglet.window.FPSDisplay (self)
+        self.user_mouse_resize = False
+        self.user_mouse_check_insensitivity = 0
+        self.user_mouse_check_level = 3
+        self.user_mouse_action = pyglet.window.key.SPACE  # not doing anything
 
 
         # batches for rendering
@@ -287,6 +242,8 @@ class Window(pyglet.window.Window):
         else:
             self.background_board_group = pyglet.graphics.Group(0)
             self.foreground_board_group = pyglet.graphics.Group(1)
+
+        self.fps = pyglet.window.FPSDisplay (self)
 
         # these can change based upon size of img_pix
         load_and_generate_or_resize_images (self)
@@ -324,6 +281,14 @@ class Window(pyglet.window.Window):
         self.window_resize (None)
 
 
+    def boards_resize (self, key):
+
+        # adjust the boards to fit
+        if (key != None):
+            for x in range (len (self.boards)):
+                self.boards[x].board_resize (self, key)
+
+
     def window_resize (self, key):
 
         print ("\nwindow_resize")
@@ -336,33 +301,35 @@ class Window(pyglet.window.Window):
         self.screen_width, self.screen_height = self.get_size ()
         print ("  Loc Pre  X Y : ", self.x, self.y, "  W H : ", self.screen_width, self.screen_height)
 
-        # adjust the boards to fit
-        if (key != None):
-            for x in range (len (self.boards)):
-                self.boards[x].board_resize (self, key)
-
         if (key == pyglet.window.key.LEFT):
-            self.game_cols -= 1
+            if (self.game_cols > self.min_cols):
+                self.boards_resize (key)
+                self.game_cols -= 1
+            else:
+                self.game_cols = self.min_cols
         elif (key == pyglet.window.key.RIGHT):
-            self.game_cols += 1
+            if (self.game_cols < self.max_cols):
+                self.boards_resize (key)
+                self.game_cols += 1
+            else:
+                self.game_cols = self.max_cols
         elif (key == pyglet.window.key.UP):
-            self.game_rows += 1
+            if (self.game_rows < self.max_rows):
+                self.boards_resize (key)
+                self.game_rows += 1
+            else:
+                self.game_rows = self.max_rows
         elif (key == pyglet.window.key.DOWN):
-            self.game_rows -= 1
+            if (self.game_rows > self.min_rows):
+                self.boards_resize (key)
+                self.game_rows -= 1
+            else:
+                self.game_rows = self.min_rows
 
         self.window_rows = self.game_rows
         self.window_cols = self.game_cols
         self.board_squares = self.game_rows * self.game_cols
         self.window_squares = self.window_rows * self.window_cols
-
-        # have to have at least one
-        if (self.window_squares < 1):
-            self.game_rows = 1
-            self.game_cols = 1
-            self.board_squares = 1
-            self.window_rows = 1
-            self.window_cols = 1
-            self.window_squares = 1
 
         # adjust the main window size to fit
         self.screen_width = self.window_cols * self.img_pix
@@ -393,11 +360,7 @@ class Window(pyglet.window.Window):
         self.boards[1].bd_randomize (self)
 
 
-#    def on_resize (self, x, y):
-#        print ("on_resize : ", x, y)
-#
-#
-    def on_draw(self):
+    def on_draw (self):
 
         self.clear()
 
@@ -410,16 +373,16 @@ class Window(pyglet.window.Window):
         #self.fps.draw()
 
 
-    def on_close(self):
+    def on_close (self):
         print ("Exiting...")
         exit()
 
 
-    def on_mouse_press(self, x, y, button, modifiers):
+    def on_mouse_press (self, x, y, button, modifiers):
 
         # only do things when something else isn't happening
         if (self.user_actions_allowed == True):
-            print ("on_mouse_press : ", x, y)
+            #print ("on_mouse_press : ", x, y)
             img_pix = self.img_pix
             x_win = x // img_pix
             x_rec = x_win * img_pix
@@ -428,55 +391,109 @@ class Window(pyglet.window.Window):
             win_pos = (y_win * self.window_cols) + x_win
 
             if button == mouse.LEFT:
-                print("The LEFT mouse button was pressed.", x, x_rec, x_win, y, y_rec, y_win, win_pos)
+                #print("The LEFT mouse button was pressed.", x, x_rec, x_win, y, y_rec, y_win, win_pos)
                 #ActiveAreaLeftMouseClickAction(self, x, x_rec, y, y_rec, win_pos)
+                pass
             elif button == mouse.MIDDLE:
-                print("The MIDDLE mouse button was pressed.", x, x_rec, x_win, y, y_rec, y_win, win_pos)
+                #print("The MIDDLE mouse button was pressed.", x, x_rec, x_win, y, y_rec, y_win, win_pos)
                 pass
             elif button == mouse.RIGHT:
-                print("The RIGHT mouse button was pressed.", x, x_rec, x_win, y, y_rec, y_win, win_pos)
+                #print("The RIGHT mouse button was pressed.", x, x_rec, x_win, y, y_rec, y_win, win_pos)
                 #ActiveAreaRightMouseClickAction(self, x, x_rec, y, y_rec, win_pos)
+                pass
 
 
-    def on_mouse_release(self, x, y, button, modifiers):
+    def on_mouse_release (self, x, y, button, modifiers):
 
         # don't do anything when something else is happening
         if (self.user_actions_allowed == True):
-            print ("on_mouse_release : ", x, y)
+            #print ("on_mouse_release : ", x, y)
+
+            # if they were doing something clear that out
+            if (self.user_mouse_action != pyglet.window.key.SPACE):
+                self.user_mouse_action = pyglet.window.key.SPACE
 
 
-    def on_mouse_motion(self, x, y, dx, dy):
+    def on_mouse_motion (self, x, y, dx, dy):
+        pass
+
+
+    def on_mouse_drag (self, x, y, dx, dy, buttons, modifiers):
 
         # don't do anything when something else is happening
         if (self.user_actions_allowed == False):
             return ()
 
-        #print ("on_mouse_motion : ", x, y)
+        if (self.user_mouse_resize == True):
+            #print ("On_Mouse_Drag  X Y  dx dy :", x, y, dx, dy)
 
-        img_pix = self.img_pix
-        x_win = x // img_pix
-        x_rec = x_win * img_pix
-        y_win = y // img_pix
-        y_rec = y_win * img_pix
-        win_pos = (y_win * self.window_cols) + x_win
+            if (dx == 0) and (dy == 0):
+                return
 
-        self.mouse_win_pos = win_pos
-        #ActiveAreaMouseMoveAction(self, x, x_rec, y, y_rec, win_pos)
+            if (self.user_mouse_check_insensitivity != self.user_mouse_check_level):
+                self.user_mouse_check_insensitivity += 1
+                return
+            else:
+                self.user_mouse_check_insensitivity = 0
 
 
-    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+            if (self.user_mouse_action == pyglet.window.key.SPACE):
+
+                # divide the screen into halfs and interpret drag
+                # direction to set the user_mouse_action
+                #
+                # start with the left
+                if (x in range (0, self.screen_width // 2)):
+                    if ((dx < 0) and (dy == 0)):
+                        #print ("L Make Fatter")
+                        self.user_mouse_action = pyglet.window.key.RIGHT
+                    elif ((dx > 0) and (dy == 0)):
+                        #print ("L Make Skinnier")
+                        self.user_mouse_action = pyglet.window.key.LEFT
+
+                # then the right
+                elif (x in range (self.screen_width // 2, self.screen_width)):
+                    if ((dx < 0) and (dy == 0)):
+                        #print ("R Make Skinnier")
+                        self.user_mouse_action = pyglet.window.key.LEFT
+                    elif ((dx > 0) and (dy == 0)):
+                        #print ("R Make Fatter")
+                        self.user_mouse_action = pyglet.window.key.RIGHT
+
+                # now the bottom
+                if (y in range (0, self.screen_height // 2)):
+                    if ((dx == 0) and (dy < 0)):
+                        #print ("B Make Taller")
+                        self.user_mouse_action = pyglet.window.key.UP
+                    elif ((dx == 0) and (dy > 0)):
+                        #print ("B Make Shorter")
+                        self.user_mouse_action = pyglet.window.key.DOWN
+
+                # then the top
+                elif (y in range (self.screen_height // 2, self.screen_height)):
+                    if ((dx == 0) and (dy < 0)):
+                        #print ("T Make Shorter")
+                        self.user_mouse_action = pyglet.window.key.DOWN
+                    elif ((dx == 0) and (dy > 0)):
+                        #print ("T Make Taller")
+                        self.user_mouse_action = pyglet.window.key.UP
+
+            # an action is underway, keep doing it as long as
+            # the user keeps the mouse pressed or the max or min
+            # sizes are reached
+            else:
+                self.window_resize (self.user_mouse_action)
+
+
+    def mouse_leave (self, x, y):
         pass
 
 
-    def on_mouse_leave(self, x, y):
+    def on_mouse_enter (self, x, y):
         pass
 
 
-    def on_mouse_enter(self, x, y):
-        pass
-
-
-    def on_key_press(self, symbol, modifiers):
+    def on_key_press (self, symbol, modifiers):
 
         self.keys_held.append(symbol)
         if ((symbol == pyglet.window.key.ESCAPE) or (symbol == pyglet.window.key.Q)): # [ESC] or [Q]
@@ -505,6 +522,9 @@ class Window(pyglet.window.Window):
                 self.gcube.visible = False
                 self.user_actions_allowed = True
             print ("The 'F2' key was pressed, show board changed to ", self.show_board)
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F4)):
+            self.user_mouse_resize = not (self.user_mouse_resize)
+            print ("The 'F4' key was pressed, user_mouse_resize ", self.user_mouse_resize)
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F6)):
             print ("The 'F6' key was pressed")
             LoadGame (self)
@@ -521,28 +541,16 @@ class Window(pyglet.window.Window):
             print ("The 'F11' key was pressed")
             DeleteSavedGame (self)
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.LEFT)):
-            if self.game_cols > self.min_cols:
-                self.window_resize (pyglet.window.key.LEFT)
-            else:
-                self.game_cols = self.min_cols
+            self.window_resize (pyglet.window.key.LEFT)
             print ("The 'LEFT' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.RIGHT)):
-            if self.game_cols < self.max_cols:
-                self.window_resize (pyglet.window.key.RIGHT)
-            else:
-                self.game_cols = self.max_cols
+            self.window_resize (pyglet.window.key.RIGHT)
             print ("The 'RIGHT' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.UP)):
-            if self.game_rows < self.max_rows:
-                self.window_resize (pyglet.window.key.UP)
-            else:
-                self.game_rows = self.max_rows
+            self.window_resize (pyglet.window.key.UP)
             print ("The 'UP' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.DOWN)):
-            if self.game_rows > self.min_rows:
-                self.window_resize (pyglet.window.key.DOWN)
-            else:
-                self.game_rows = self.min_rows
+            self.window_resize (pyglet.window.key.DOWN)
             print ("The 'DOWN' key was pressed")
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.NUM_ADD)):
             print ("The 'NUM_ADD' key was pressed")
@@ -561,34 +569,29 @@ class Window(pyglet.window.Window):
                 self.window_resize (None)
                 self.redraw ()
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.P)):
-            print(self.boards[self.show_board])
+            print (self.boards[self.show_board])
         else:
            pass
 
 
-    def on_key_release(self, symbol, modifiers):
+    def on_key_release (self, symbol, modifiers):
         try:
-            self.keys_held.pop(self.keys_held.index(symbol))
+            self.keys_held.pop (self.keys_held.index(symbol))
             #print ("The key was released")
         except:
             pass
 
 
-    def update(self, dt):
+    def update (self, dt):
         pass
 
 
-def main():
+def main ():
 
-    window = Window(width=1, height=1, caption="Npath", resizable=True, fullscreen=False, visible=False)
+    window = Window (width=1, height=1, caption="Npath", resizable=False, fullscreen=False, visible=False)
 
-    @window.event
-    def on_resize (height, width):
-        w_on_resize (window, height, width)
-
-
-    pyglet.clock.schedule_interval(window.update, 1/60.0) # update at 60Hz
-    pyglet.app.run()
+    pyglet.clock.schedule_interval (window.update, 1/60.0) # update at 60Hz
+    pyglet.app.run ()
 
 
 if __name__ == "__main__":
