@@ -157,7 +157,7 @@ def SaveGame (self):
 
 def SimpleCheck (self):
     #print ("Simple Check")
-    for i in range(len(self.back_board.tiles)):
+    for i in range(len(self.boards[0].tiles)):
         if (self.boards[0].tiles[i] != self.boards[1].tiles[i]):
             return (False)
     return (True)
