@@ -5,12 +5,13 @@
 
 import copy, os, random
 from pathlib import Path, PurePath
-
-from time import sleep
+from math import sqrt
 
 import pyglet
 from pyglet.window import mouse
+from pyglet.image import SolidColorImagePattern, ImageData
 from pyglet import clock
+
 
 from active import ActiveAreaLeftMouseClickAction, ActiveAreaRightMouseClickAction, ActiveAreaMouseMoveAction
 from board import Board
@@ -18,17 +19,114 @@ from dialog import ChangeLayout, CheckBoard, DeleteSavedGame, LoadGame, SaveGame
 from version import GetVersion
 
 
+class SolidColorButtonImagePattern(SolidColorImagePattern):
+    """Creates a beveled button image filled with a solid color."""
+
+    def __init__(self, color=(0, 0, 0, 0), border_color=(0,0,0,255)):
+        """Create a beveled image pattern with color and blend the 
+                border towards border_color.
+
+        :Parameters:
+            `color` : (int, int, int, int)
+                4-tuple of ints in range [0,255] giving RGBA components of
+                color to fill with.
+            `border_color` : (int, int, int, int)
+                4-tuple of ints in range [0,255] giving RGBA components of
+                the border color to blend towards.
+
+        """
+        if len(color) != 4:
+            raise TypeError("color is expected to have 4 components")
+        self.color = list(color)
+        self.border_color = list(border_color)
+
+    def create_image(self, width, height):
+
+        data = self.color * width * height
+
+        if (width < 3) or (height < 3):
+            print ("width or height < 3 : ", width, height, "  No Border Applied to image.")
+            img_data = ImageData(width, height, 'RGBA', bytes(data))
+            return img_data
+
+        x_border = int(width / sqrt(width))
+        y_border = int(height / sqrt(height))
+        if (x_border == 0):
+            x_border = 1
+        if (y_border == 0):
+            y_border = 1
+
+        # so the borders are uniform make sure they are the same size
+        # even if the width and height of the tiles are different
+        if (x_border != y_border):
+            y_border = (x_border + x_border) // 2
+            x_border = y_border
+
+        # how many gradient steps to use for each part of the color and alpha
+        step_x_red = (self.border_color[0] - self.color[0]) / x_border
+        step_y_red = (self.border_color[0] - self.color[0]) / y_border
+        step_x_green = (self.border_color[1] - self.color[1]) / x_border
+        step_y_green = (self.border_color[1] - self.color[1]) / y_border
+        step_x_blue = (self.border_color[2] - self.color[2]) / x_border
+        step_y_blue = (self.border_color[2] - self.color[2]) / y_border
+        step_x_alpha = (self.border_color[3] - self.color[3]) / x_border
+        step_y_alpha = (self.border_color[3] - self.color[3]) / y_border
+
+        # bottom and top row(s)
+        red_x = self.border_color[0]
+        green_x = self.border_color[1]
+        blue_x = self.border_color[2]
+        alpha_x = self.border_color[3]
+        for x in range(x_border):
+            for y in range(width-(x*2)):
+                indx_lower = (x*width*4)+((y+x)*4)
+                indx_upper = ((height-(x+1))*width*4)+((y+x)*4)
+                data[indx_lower] = int(red_x)
+                data[indx_upper] = int(red_x)
+                data[indx_lower+1] = int(green_x)
+                data[indx_upper+1] = int(green_x)
+                data[indx_lower+2] = int(blue_x)
+                data[indx_upper+2] = int(blue_x)
+                data[indx_lower+3] = int(alpha_x)
+                data[indx_upper+3] = int(alpha_x)
+
+            red_x -= step_x_red
+            green_x -= step_x_green
+            blue_x -= step_x_blue
+            alpha_x -= step_x_alpha
+
+        # left and right col(s)
+        red_y = self.border_color[0]
+        green_y = self.border_color[1]
+        blue_y = self.border_color[2]
+        alpha_y = self.border_color[3]
+        for x in range(y_border):
+            for y in range(height-(x*2)):
+                indx_left = (((y+x)*height)+(x))*4
+                indx_right = (((y+x)*height)+(width-x-1))*4
+                data[indx_left] = int(red_y)
+                data[indx_right] = int(red_y)
+                data[indx_left+1] = int(green_y)
+                data[indx_right+1] = int(green_y)
+                data[indx_left+2] = int(blue_y)
+                data[indx_right+2] = int(blue_y)
+                data[indx_left+3] = int(alpha_y)
+                data[indx_right+3] = int(alpha_y)
+
+            red_y -= step_y_red
+            green_y -= step_y_green
+            blue_y -= step_y_blue
+            alpha_y -= step_y_alpha
+
+        img_data = ImageData(width, height, 'RGBA', bytes(data))
+        return img_data
+
+
 def load_and_generate_or_resize_images (self):
 
     # this can be called more than once (when someone increases or
     # decreases img_pix).
     print ("Basic Tile and Image Size : ", str(self.img_pix) + " x " + str(self.img_pix) + " pixels")
-
-    # the path to the images
-    try:
-        self.png_path
-    except:
-        self.png_path = os.path.dirname(__file__) + "/graphics/"
 
     # colors
     color_list = [
@@ -55,6 +153,7 @@ def load_and_generate_or_resize_images (self):
 
     print("Length of color list : ", len(color_list))
 
+
     # tanish tile uses color (204 150 77) 64x64 pixels.  the two lines
     # commented out were ones used to create and save the initial image
     # and then i used gimp to put a border on it.
@@ -67,19 +166,20 @@ def load_and_generate_or_resize_images (self):
     #self.game_tile_image = pyglet.image.SolidColorImagePattern(color=(204, 150, 77, 255)).create_image(width=self.img_pix, height=self.img_pix)
     #self.game_tile_image.save(self.png_path + "misc/gen_tile.png")
     try:
-        del self.base_image
+        del self.base_image_tex
     except:
         pass
 
     f_name = str(self.png_path) + "misc/tile_" + str(self.img_pix) + ".png"
-    print("f_name : ", f_name)
+    #print("f_name : ", f_name)
+    ft_name = "tile_" + str(self.img_pix) + ".png"
+    #print("ft_name : ", ft_name)
     path = Path(f_name)
     if (path.is_file() == True):
-        self.base_image = pyglet.image.load(path)
+        self.base_image_tex = pyglet.resource.Loader (pyglet.resource.path).texture (ft_name)
     else:
-        self.base_image = pyglet.image.SolidColorImagePattern(color=(204, 150, 77, 255)).create_image(width=self.img_pix, height=self.img_pix)
-
-    print ("self.base_image : ", self.base_image)
+        #self.base_image_tex = SolidColorButtonImagePattern (color=(204, 150, 77, 255), border_color=(194,130,77,255)).create_image (width=self.img_pix, height=self.img_pix).get_texture ()
+        self.base_image_tex = SolidColorButtonImagePattern (color=(204, 150, 77, 255), border_color=(0,0,0,0)).create_image (width=self.img_pix, height=self.img_pix).get_texture ()
 
     # the first sprite make from the base_tile after that add 
     # all the images of colors from the above color_list
@@ -87,16 +187,16 @@ def load_and_generate_or_resize_images (self):
         self.image_list
     except:
         self.image_list = []
-        self.image_list.append(self.base_image)
-        for i in range(len(color_list)):
-            image = pyglet.image.SolidColorImagePattern(color=color_list[i]).create_image(width=self.img_pix, height=self.img_pix)
-            self.image_list.append(image)
+        self.image_list.append (self.base_image_tex)
+        for i in range (len (color_list)):
+            image_tex = pyglet.image.SolidColorImagePattern (color=color_list[i]).create_image (width=self.img_pix, height=self.img_pix).get_texture ()
+            self.image_list.append (image_tex)
     else:
         # replace images in the list with different sized images
-       self.image_list[0] = self.base_image
-       for i in range(len(color_list)):
-           image = pyglet.image.SolidColorImagePattern(color=color_list[i]).create_image(width=self.img_pix, height=self.img_pix)
-           self.image_list[i+1] = image
+       self.image_list[0] = self.base_image_tex
+       for i in range (len (color_list)):
+           image_tex = pyglet.image.SolidColorImagePattern (color=color_list[i]).create_image (width=self.img_pix, height=self.img_pix).get_texture ()
+           self.image_list[i+1] = image_tex
 
     print("Length of self.image_list : ", len(self.image_list), "  Base tile image is always image 0")
 
@@ -143,8 +243,21 @@ class Window(pyglet.window.Window):
         self.this_fn_to_open = self.suggested_fn
         self.this_fn_to_save = self.suggested_fn
 
-        self.home = Path.home()
+        self.home = Path.home ()
         self.saved_dir = None
+
+        # the path to the images
+        self.png_path = os.path.dirname (__file__) + "/graphics/"
+        print ("self.png_path : ", self.png_path)
+        pyglet.resource.path = [".", "graphics/", "graphics/misc/"]
+        pyglet.resource.reindex ()
+
+        prog_name, prog_ext = os.path.splitext (os.path.basename (__file__))
+        self.settings_path = pyglet.resource.get_settings_path (prog_name)
+        print ("self.settings_path : ", self.settings_path)
+        self.data_path = pyglet.resource.get_data_path (prog_name)
+        print ("self.data_path : ", self.data_path)
+
 
         # save file directory
         if (os.name == "posix"):
@@ -157,10 +270,8 @@ class Window(pyglet.window.Window):
         # these are the list of sizes, only some of these are bordered tiles 
         #   the too small ones (1, 2, 4) you can't see them anyways and
         #   the biggest one (1024) i'm not sure anyone would use that...
-        self.pix_list = [1, 2, 4, 8, 10, 16, 32, 50, 64, 96, 100, 128, 150, 192, 200, 256, 300, 512, 750, 1024]
+        self.pix_list = [1, 2, 3, 4, 8, 10, 16, 32, 50, 64, 96, 100, 128, 150, 192, 200, 256, 300, 512, 750, 1024]
         self.pix_index = 8
-        #self.pix_index = 10                                # 100
-        #self.pix_index = 8                                 # 64
         self.img_pix = self.pix_list[self.pix_index]
         self.wiggle_room = self.img_pix // 2
 
@@ -176,13 +287,13 @@ class Window(pyglet.window.Window):
         self.min_rows = 1     # must be 1 or greater
         self.min_cols = 1     #
 
-        self.max_rows = 15    # for temporary testing - i don't know how big
-        self.max_cols = 30    #    a value i can put in here.
+        self.max_rows = 300    # for temporary testing - i don't know how big
+        self.max_cols = 300    #    the values i can put in here.
 
 
-        # board size if no saved board exists
-        self.game_rows = 12      # height
-        self.game_cols = 18      # width
+        # board size if no saved board exists (dimensions)
+        self.game_rows = 19      # height
+        self.game_cols = 38      # width
 
         # and some testing values
         #self.game_rows = 1    # height
@@ -191,9 +302,6 @@ class Window(pyglet.window.Window):
         # to fill the full screen in 1920 1080 with 64x64 pixel tiles
         #self.game_rows = 15   # height
         #self.game_cols = 30   # width
-
-        #self.game_rows = 49   # height
-        #self.game_cols = 49   # width
 
 
         # screens, sizes and locations

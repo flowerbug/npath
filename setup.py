@@ -33,7 +33,7 @@ setup(
                     "wheel >= 0.32.3"
                     ],
     packages=find_packages(),
-    install_requires=["pyglet >= 1.5.0"
+    install_requires=["pyglet >= 2.0.dev6"
                      ],
     provides=["npath"],
     include_package_data=True,
