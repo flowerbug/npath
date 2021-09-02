@@ -4,7 +4,7 @@
 # Copyright (c) Flowerbug <flowerbug@anthive.com>
 
 import copy, os, random
-from pathlib import Path, PurePath
+from pathlib import Path
 from math import sqrt
 
 import pyglet
@@ -253,19 +253,13 @@ class Window(pyglet.window.Window):
         pyglet.resource.reindex ()
 
         prog_name, prog_ext = os.path.splitext (os.path.basename (__file__))
-        self.settings_path = pyglet.resource.get_settings_path (prog_name)
-        print ("self.settings_path : ", self.settings_path)
-        self.data_path = pyglet.resource.get_data_path (prog_name)
+        
+        # i don't need this path for now but i'll leave this in just in case
+        # someone else needs this for the future
+        #self.settings_path = Path(pyglet.resource.get_settings_path (prog_name))
+        #print ("self.settings_path : ", self.settings_path)
+        self.data_path = Path(pyglet.resource.get_data_path (prog_name))
         print ("self.data_path : ", self.data_path)
-
-
-        # save file directory
-        if (os.name == "posix"):
-            self.home = Path.home()
-            self.data_path = self.home / Path(".local/share/npath")
-        else:
-            print ("  Npath doesn't know where to set data_path for OS : ", os.name)
-            print ("This is where a user would save their games.")
 
         # these are the list of sizes, only some of these are bordered tiles 
         #   the too small ones (1, 2, 4) you can't see them anyways and
@@ -292,8 +286,8 @@ class Window(pyglet.window.Window):
 
 
         # board size if no saved board exists (dimensions)
-        self.game_rows = 19      # height
-        self.game_cols = 38      # width
+        self.game_rows = 3      # height
+        self.game_cols = 5      # width
 
         # and some testing values
         #self.game_rows = 1    # height
@@ -618,7 +612,7 @@ class Window(pyglet.window.Window):
             self.show_board = (self.show_board + 1) % 2
 
             if (self.show_board == 0):
-                self.background_board_group.visible = False
+                self.background_board_group.visible = True
                 self.foreground_board_group.visible = True
                 self.cube.visible = False
                 self.gcube.visible = True

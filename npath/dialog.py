@@ -86,17 +86,18 @@ def Load_NPATH_Version_1 (self, lines_in):
     self.game_rows = lines_in[1][0]
     self.game_cols = lines_in[1][1]
 
-    print(lines_in[2])
-    print(lines_in[3])
-    self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[2], self.batch, self.background_board_group))
-    self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[3], self.over_batch, self.foreground_board_group))
-    print ("Load_NPATH_Version_1 -> new values for : R C NB NM", self.game_rows, self.game_cols, self.boards[0], self.boards[1])
+    #print(lines_in[1])
+    #print(lines_in[2])
+    #print(lines_in[3])
+    self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[2], self.over_batch, self.background_board_group))
+    self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[3], self.under_batch, self.foreground_board_group))
+    #print ("Load_NPATH_Version_1 -> new values for : R C NB NM", self.game_rows, self.game_cols, self.boards[0], self.boards[1])
 
 
 def LoadGame (self):
     print ("Load Game")
     self.saved_dir = str(Path.cwd())
-    print ("Keep track of current directory : ", self.saved_dir)
+    #print ("Keep track of current directory : ", self.saved_dir)
 
     # check for saved games directory
     if (self.data_path.exists() != True):
@@ -118,14 +119,11 @@ def LoadGame (self):
 
     if (self.this_fn_to_open.endswith(".json") == True):
         with open(self.this_fn_to_open) as filein:
-            try:
-                lines_in = json.load(filein)
-                Load_NPATH_Version_1 (self, lines_in)
-                self.do_random_board = False
-                self.this_fn_to_save = self.this_fn_to_open
-                print ("fn : ", self.this_fn_to_open, " lines in : ", lines_in)
-            except:
-                print ("There is some type of problem with the saved game.  Perhaps it wasn't saved correctly?")
+            lines_in = json.load(filein)
+            Load_NPATH_Version_1 (self, lines_in)
+            self.do_random_board = False
+            self.this_fn_to_save = self.this_fn_to_open
+            #print ("fn : ", self.this_fn_to_open, " lines in : ", lines_in)
 
     #print ("Going back to directory : ", self.saved_dir)
     os.chdir(self.saved_dir)
