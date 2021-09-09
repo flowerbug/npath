@@ -5,121 +5,18 @@
 
 import copy, os, random
 from pathlib import Path
-from math import sqrt
 
 import pyglet
 from pyglet.window import mouse
-from pyglet.image import SolidColorImagePattern, ImageData
+from pyglet.image import SolidColorImagePattern
 from pyglet import clock
 
 
 from active import ActiveAreaLeftMouseClickAction, ActiveAreaRightMouseClickAction, ActiveAreaMouseMoveAction
 from board import Board
+from button import SolidColorButtonImagePattern, SolidColorButtonImagePatternV00
 from dialog import ChangeLayout, CheckBoard, DeleteSavedGame, LoadGame, SaveGame, ShowAbout
 from version import GetVersion
-
-
-class SolidColorButtonImagePattern(SolidColorImagePattern):
-    """Creates a beveled button image filled with a solid color."""
-
-    def __init__(self, color=(0, 0, 0, 0), border_color=(0,0,0,255)):
-        """Create a beveled image pattern with color and blend the 
-                border towards border_color.
-
-        :Parameters:
-            `color` : (int, int, int, int)
-                4-tuple of ints in range [0,255] giving RGBA components of
-                color to fill with.
-            `border_color` : (int, int, int, int)
-                4-tuple of ints in range [0,255] giving RGBA components of
-                the border color to blend towards.
-
-        """
-        if len(color) != 4:
-            raise TypeError("color is expected to have 4 components")
-        self.color = list(color)
-        self.border_color = list(border_color)
-
-    def create_image(self, width, height):
-
-        data = self.color * width * height
-
-        if (width < 3) or (height < 3):
-            print ("width or height < 3 : ", width, height, "  No Border Applied to image.")
-            img_data = ImageData(width, height, 'RGBA', bytes(data))
-            return img_data
-
-        x_border = int(width / sqrt(width))
-        y_border = int(height / sqrt(height))
-        if (x_border == 0):
-            x_border = 1
-        if (y_border == 0):
-            y_border = 1
-
-        # so the borders are uniform make sure they are the same size
-        # even if the width and height of the tiles are different
-        if (x_border != y_border):
-            y_border = (x_border + x_border) // 2
-            x_border = y_border
-
-        # how many gradient steps to use for each part of the color and alpha
-        step_x_red = (self.border_color[0] - self.color[0]) / x_border
-        step_y_red = (self.border_color[0] - self.color[0]) / y_border
-        step_x_green = (self.border_color[1] - self.color[1]) / x_border
-        step_y_green = (self.border_color[1] - self.color[1]) / y_border
-        step_x_blue = (self.border_color[2] - self.color[2]) / x_border
-        step_y_blue = (self.border_color[2] - self.color[2]) / y_border
-        step_x_alpha = (self.border_color[3] - self.color[3]) / x_border
-        step_y_alpha = (self.border_color[3] - self.color[3]) / y_border
-
-        # bottom and top row(s)
-        red_x = self.border_color[0]
-        green_x = self.border_color[1]
-        blue_x = self.border_color[2]
-        alpha_x = self.border_color[3]
-        for x in range(x_border):
-            for y in range(width-(x*2)):
-                indx_lower = (x*width*4)+((y+x)*4)
-                indx_upper = ((height-(x+1))*width*4)+((y+x)*4)
-                data[indx_lower] = int(red_x)
-                data[indx_upper] = int(red_x)
-                data[indx_lower+1] = int(green_x)
-                data[indx_upper+1] = int(green_x)
-                data[indx_lower+2] = int(blue_x)
-                data[indx_upper+2] = int(blue_x)
-                data[indx_lower+3] = int(alpha_x)
-                data[indx_upper+3] = int(alpha_x)
-
-            red_x -= step_x_red
-            green_x -= step_x_green
-            blue_x -= step_x_blue
-            alpha_x -= step_x_alpha
-
-        # left and right col(s)
-        red_y = self.border_color[0]
-        green_y = self.border_color[1]
-        blue_y = self.border_color[2]
-        alpha_y = self.border_color[3]
-        for x in range(y_border):
-            for y in range(height-(x*2)):
-                indx_left = (((y+x)*height)+(x))*4
-                indx_right = (((y+x)*height)+(width-x-1))*4
-                data[indx_left] = int(red_y)
-                data[indx_right] = int(red_y)
-                data[indx_left+1] = int(green_y)
-                data[indx_right+1] = int(green_y)
-                data[indx_left+2] = int(blue_y)
-                data[indx_right+2] = int(blue_y)
-                data[indx_left+3] = int(alpha_y)
-                data[indx_right+3] = int(alpha_y)
-
-            red_y -= step_y_red
-            green_y -= step_y_green
-            blue_y -= step_y_blue
-            alpha_y -= step_y_alpha
-
-        img_data = ImageData(width, height, 'RGBA', bytes(data))
-        return img_data
 
 
 def load_and_generate_or_resize_images (self):
@@ -176,10 +73,22 @@ def load_and_generate_or_resize_images (self):
     #print("ft_name : ", ft_name)
     path = Path(f_name)
     if (path.is_file() == True):
+        if (self.button_style != None):
+            self.last_button_style = self.button_style
+        self.button_style = None
         self.base_image_tex = pyglet.resource.Loader (pyglet.resource.path).texture (ft_name)
     else:
-        #self.base_image_tex = SolidColorButtonImagePattern (color=(204, 150, 77, 255), border_color=(194,130,77,255)).create_image (width=self.img_pix, height=self.img_pix).get_texture ()
-        self.base_image_tex = SolidColorButtonImagePattern (color=(204, 150, 77, 255), border_color=(0,0,0,0)).create_image (width=self.img_pix, height=self.img_pix).get_texture ()
+        if (self.button_style == None):
+            self.button_style = self.last_button_style
+        print ("Button Style : ", self.button_style)
+        if (self.button_style == 0):
+            self.base_image_tex = SolidColorButtonImagePattern (color=(204, 150, 77, 255), border_color=(0, 0, 0, 0)).create_image (width=self.img_pix, height=self.img_pix).get_texture ()
+        elif (self.button_style == 1):
+            self.base_image_tex = SolidColorButtonImagePattern (color=(204, 150, 77, 255), border_color=(204, 150, 77, 255)).create_image (width=self.img_pix, height=self.img_pix).get_texture ()
+        elif (self.button_style == 2):
+            self.base_image_tex = SolidColorButtonImagePatternV00 (color=(204, 150, 77, 255), border_color=(0, 0, 0, 0)).create_image (width=self.img_pix, height=self.img_pix).get_texture ()
+        elif (self.button_style == 3):
+            self.base_image_tex = SolidColorButtonImagePatternV00 (color=(204, 150, 77, 255), border_color=(204, 150, 77, 0)).create_image (width=self.img_pix, height=self.img_pix).get_texture ()
 
     # the first sprite make from the base_tile after that add 
     # all the images of colors from the above color_list
@@ -258,7 +167,10 @@ class Window(pyglet.window.Window):
         # someone else needs this for the future
         #self.settings_path = Path(pyglet.resource.get_settings_path (prog_name))
         #print ("self.settings_path : ", self.settings_path)
-        self.data_path = Path(pyglet.resource.get_data_path (prog_name))
+        if (pyglet.version.startswith("1.5") == True):
+            self.data_path = Path(os.getenv("HOME") + "/.local/share/" + prog_name)
+        else:
+            self.data_path = Path(pyglet.resource.get_data_path (prog_name))
         print ("self.data_path : ", self.data_path)
 
         # these are the list of sizes, only some of these are bordered tiles 
@@ -328,22 +240,26 @@ class Window(pyglet.window.Window):
         self.user_mouse_action = pyglet.window.key.SPACE  # not doing anything
 
 
-        # batches for rendering
+        # batches for rendering board layers
         self.under_batch = pyglet.graphics.Batch()
         self.over_batch = pyglet.graphics.Batch()
 
+        # batches for rendering everything else
         self.pointer_bottom_batch = pyglet.graphics.Batch()
         self.pointer_middle_batch = pyglet.graphics.Batch()
         self.pointer_top_batch = pyglet.graphics.Batch()
 
-
         # groups for rendering
-        if (pyglet.version.startswith("1.5.") == True):
+        if (pyglet.version.startswith("1.5") == True):
             self.background_board_group = pyglet.graphics.OrderedGroup(0)
             self.foreground_board_group = pyglet.graphics.OrderedGroup(1)
         else:
             self.background_board_group = pyglet.graphics.Group(0)
             self.foreground_board_group = pyglet.graphics.Group(1)
+
+        self.magnifier = False
+        self.button_style = None
+        self.last_button_style = 0
 
         self.fps = pyglet.window.FPSDisplay (self)
 
@@ -517,6 +433,7 @@ class Window(pyglet.window.Window):
 
 
     def on_mouse_motion (self, x, y, dx, dy):
+        #print ("On_Mouse_Motion  X Y  dx dy :", x, y, dx, dy)
         pass
 
 
@@ -636,6 +553,45 @@ class Window(pyglet.window.Window):
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F8)):
             print ("The 'F8' key was pressed")
             self.new_random_game ()
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F9)):
+            print ("The 'F9' key was pressed")
+            if (self.magnifier == False):
+                if (self.button_style == None):
+                    self.button_style = self.last_button_style
+                self.background_board_group.visible = False
+                self.foreground_board_group.visible = False
+                self.cube.visible = False
+                self.gcube.visible = False
+                self.user_actions_allowed = True
+                while (self.game_cols > 1):
+                    self.window_resize (pyglet.window.key.LEFT)
+                while (self.game_rows > 1):
+                    self.window_resize (pyglet.window.key.DOWN)
+                self.pix_index = len(self.pix_list) - 1
+                self.img_pix = self.pix_list[self.pix_index]
+                load_and_generate_or_resize_images (self)
+                self.background_board_group.visible = True
+                self.foreground_board_group.visible = True
+                self.window_resize (None)
+                self.redraw ()
+                self.mag_sprite_bg = pyglet.sprite.Sprite(self.boards[1].tiles[0].spr.image.get_region(0,0,64,64),batch=self.pointer_middle_batch)
+                self.mag_sprite_bg.update(scale=8, x=256, y=256)
+                self.mag_sprite_ll = pyglet.sprite.Sprite(self.boards[0].tiles[0].spr.image.get_region(0,0,32,32),batch=self.pointer_top_batch)
+                self.mag_sprite_ll.update(scale=8, x=256, y=256)
+                self.mag_sprite_lr = pyglet.sprite.Sprite(self.boards[0].tiles[0].spr.image.get_region(1024-32,0,32,32),batch=self.pointer_top_batch)
+                self.mag_sprite_lr.update(scale=8, x=512, y=256)
+                self.mag_sprite_ul = pyglet.sprite.Sprite(self.boards[0].tiles[0].spr.image.get_region(0,1024-32,32,32),batch=self.pointer_top_batch)
+                self.mag_sprite_ul.update(scale=8, x=256, y=512)
+                self.mag_sprite_ur = pyglet.sprite.Sprite(self.boards[0].tiles[0].spr.image.get_region(1024-32,1024-32,32,32),batch=self.pointer_top_batch)
+                self.mag_sprite_ur.update(scale=8, x=512, y=512)
+                self.magnifier = True
+            else:
+                self.mag_sprite_bg.visible = False
+                self.mag_sprite_ll.visible = False
+                self.mag_sprite_lr.visible = False
+                self.mag_sprite_ul.visible = False
+                self.mag_sprite_ur.visible = False
+                self.magnifier = False
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F10)):
             print ("The 'F10' key was pressed")
             CheckBoard (self)
@@ -672,6 +628,15 @@ class Window(pyglet.window.Window):
                 self.redraw ()
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.P)):
             print (self.boards[self.show_board])
+        elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.B)):
+            if (self.button_style != None):
+                self.button_style = (self.button_style + 1) % 4
+                self.last_button_style = self.button_style
+                load_and_generate_or_resize_images (self)
+                self.window_resize (None)
+                self.redraw ()
+            else:
+                print ("The Button Style is from a loaded image")
         else:
            pass
 
@@ -690,7 +655,7 @@ class Window(pyglet.window.Window):
 
 def main ():
 
-    window = Window (width=1, height=1, caption="Npath", resizable=False, fullscreen=False, visible=False)
+    window = Window (width=1, height=1, caption="Npath", resizable=True, fullscreen=False, visible=False)
 
     pyglet.clock.schedule_interval (window.update, 1/60.0) # update at 60Hz
     pyglet.app.run ()
