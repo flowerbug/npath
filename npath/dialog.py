@@ -64,11 +64,20 @@ def ShowAbout (self):
         + "\n"
         + "    'F8'                : New Random Game\n"
         + "\n"
+        + "    'F9'                : 1 Column x 1 Row Maximum Size Tile\n"
+        + "                             With 8x Magnified Corners\n"
+        + "\n"
         + "    'F10'               : Check Game\n"
         + "                             To see if we've won\n"
         + "\n"
         + "\n"
         + "    'F11'               : Delete Saved Game and Directory\n"
+        + "\n"
+        + "\n"
+        + "    'P'                 : Print the Image Numbers of the Board\n"
+        + "\n"
+        + "    'B'                 : Toggle Through the Button Styles If the\n"
+        + "                             Tile Was Not Loaded from a File\n"
         + "\n"
         + "\n"
         + "    Project Location :"
@@ -89,8 +98,14 @@ def Load_NPATH_Version_1 (self, lines_in):
     #print(lines_in[1])
     #print(lines_in[2])
     #print(lines_in[3])
-    self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[2], self.over_batch, self.background_board_group))
-    self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[3], self.under_batch, self.foreground_board_group))
+    print ("Length self.boards : ", len(self.boards))
+    if (len(self.boards) != 0):
+        for x in len(self.boards):
+            self.boards[x].delete()
+        del self.boards
+        self.boards = []
+    self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[2], self.over_batch, self.foreground_board_group))
+    self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[3], self.under_batch, self.background_board_group))
     #print ("Load_NPATH_Version_1 -> new values for : R C NB NM", self.game_rows, self.game_cols, self.boards[0], self.boards[1])
 
 
