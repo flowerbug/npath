@@ -28,7 +28,10 @@ class Tile ():
 
 
     def delete (self):
-        self.spr.delete()
+        try:
+            self.spr.delete()
+        except:
+            pass
 
 
     def set_img (self, img_number, img):
@@ -63,7 +66,7 @@ class Board ():
         # if it is a random board replace the base tiles
         if (self.do_random_board == True):
             #print ("Random Board in Class Board")
-            self.bd_randomize (window)
+            self.bd_randomize (window.image_list)
             self.do_random_board = False
 
         # if it is a board to create from a list use those numbers instead
@@ -99,7 +102,10 @@ class Board ():
 
     def delete (self):
         for x in range(len(self.tiles)):
-            self.tiles[0].spr.delete()
+            try:
+                self.tiles[0].spr.delete()
+            except:
+                pass
 
 
     def set_all (self, img_number, img):
@@ -148,31 +154,32 @@ class Board ():
         #print (" Placed : ", placed)
 
 
-    def bd_randomize (self, window):
+    def bd_randomize (self, image_list):
 
         # another random board example that fills all the squares
-        image_list_length = len(window.image_list) - 1
+        image_list_length = len(image_list) - 1
         for x in range(len(self.tiles)):
             # don't pick 0 since that's the foreground blank tile image
             randchance = random.randint(1,image_list_length)
-            self.tiles[x].set_img (randchance, window.image_list[randchance])
+            self.tiles[x].set_img (randchance, image_list[randchance])
 
 
-    def add_row (self, window):
+    def add_row (self, image_list):
 
         #print ("Add Row  BH  : ", self.board_height)
+        #print ("Add Row  is_random_board  : ", self.is_random_board)
         y = self.board_height
         for x in range(self.board_width):
             if (self.is_random_board == False):
-                self.tiles.append (Tile (window.image_list, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
+                self.tiles.append (Tile (image_list, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
                 self.tiles[-1].spr.x = x * self.tile_width
                 self.tiles[-1].spr.y = y * self.tile_height
                 self.tiles[-1].spr.visible = True
 
             else:
-                self.tiles.append (Tile (window.image_list, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
-                randchance = random.randint (1, len (window.image_list) - 1)
-                self.tiles[-1].set_img (randchance, window.image_list[randchance])
+                self.tiles.append (Tile (image_list, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
+                randchance = random.randint (1, len (image_list) - 1)
+                self.tiles[-1].set_img (randchance, image_list[randchance])
                 self.tiles[-1].spr.x = x * self.tile_width
                 self.tiles[-1].spr.y = y * self.tile_height
                 self.tiles[-1].spr.visible = True
@@ -181,7 +188,7 @@ class Board ():
         #print (self)
 
 
-    def add_col (self, window):
+    def add_col (self, image_list):
 
         #print (self)
         tile_ind = len(self.tiles)
@@ -189,14 +196,14 @@ class Board ():
         for y in range(self.board_height-1, -1, -1):
             #print (" X Y ind : ", x, y, tile_ind)
             if (self.is_random_board == False):
-                self.tiles.insert (tile_ind, Tile (window.image_list, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
+                self.tiles.insert (tile_ind, Tile (image_list, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
                 self.tiles[tile_ind].spr.x = x * self.tile_width
                 self.tiles[tile_ind].spr.y = y * self.tile_height
                 self.tiles[tile_ind].spr.visible = True
             else:
-                self.tiles.insert (tile_ind, Tile (window.image_list, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
-                randchance = random.randint (1, len (window.image_list) - 1)
-                self.tiles[tile_ind].set_img (randchance, window.image_list[randchance])
+                self.tiles.insert (tile_ind, Tile (image_list, 0, self.tile_height, self.tile_width, 0, 0, self.batch, self.group))
+                randchance = random.randint (1, len (image_list) - 1)
+                self.tiles[tile_ind].set_img (randchance, image_list[randchance])
                 self.tiles[tile_ind].spr.x = x * self.tile_width
                 self.tiles[tile_ind].spr.y = y * self.tile_height
                 self.tiles[tile_ind].spr.visible = True
@@ -207,7 +214,7 @@ class Board ():
         #print (self)
 
 
-    def del_row (self, window):
+    def del_row (self):
 
         #print (self)
         del self.tiles[-self.board_width:]
@@ -215,7 +222,7 @@ class Board ():
         #print (self)
 
 
-    def del_col (self, window):
+    def del_col (self):
 
         #print (self)
         del self.tiles[self.board_width-1:len(self.tiles):self.board_width]
@@ -248,14 +255,14 @@ class Board ():
             return
         elif (new_size > old_size):
             if (key == pyglet.window.key.RIGHT):
-                self.add_col (window)
+                self.add_col (window.image_list)
             elif (key == pyglet.window.key.UP):
-                self.add_row (window)
+                self.add_row (window.image_list)
         else:
             if (key == pyglet.window.key.LEFT):
-                self.del_col (window)
+                self.del_col ()
             elif (key == pyglet.window.key.DOWN):
-                self.del_row (window)
+                self.del_row ()
 
 
     def redraw (self, img_list):

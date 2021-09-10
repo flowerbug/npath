@@ -248,16 +248,20 @@ class Window(pyglet.window.Window):
         self.pointer_bottom_batch = pyglet.graphics.Batch()
         self.pointer_middle_batch = pyglet.graphics.Batch()
         self.pointer_top_batch = pyglet.graphics.Batch()
+        self.magnifier_bottom_batch = pyglet.graphics.Batch()
+        self.magnifier_top_batch = pyglet.graphics.Batch()
 
         # groups for rendering
         if (pyglet.version.startswith("1.5") == True):
             self.background_board_group = pyglet.graphics.OrderedGroup(0)
             self.foreground_board_group = pyglet.graphics.OrderedGroup(1)
+            self.magnifier_group = pyglet.graphics.OrderedGroup(2)
         else:
             self.background_board_group = pyglet.graphics.Group(0)
             self.foreground_board_group = pyglet.graphics.Group(1)
+            self.magnifier_group = pyglet.graphics.Group(2)
+        self.magnifier_group.visible = False
 
-        self.magnifier = False
         self.button_style = None
         self.last_button_style = 0
 
@@ -375,7 +379,7 @@ class Window(pyglet.window.Window):
     def new_random_game (self):
 
         print ("New Random Game")
-        self.boards[1].bd_randomize (self)
+        self.boards[1].bd_randomize (self.image_list)
 
 
     def on_draw (self):
@@ -387,6 +391,8 @@ class Window(pyglet.window.Window):
         self.pointer_bottom_batch.draw()
         self.pointer_middle_batch.draw()
         self.pointer_top_batch.draw()
+        self.magnifier_bottom_batch.draw()
+        self.magnifier_top_batch.draw()
 
         #self.fps.draw()
 
@@ -547,6 +553,9 @@ class Window(pyglet.window.Window):
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F6)):
             print ("The 'F6' key was pressed")
             LoadGame (self)
+            load_and_generate_or_resize_images (self)
+            self.redraw ()
+            self.window_resize (None)
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F7)):
             print ("The 'F7' key was pressed")
             SaveGame (self)
@@ -555,7 +564,7 @@ class Window(pyglet.window.Window):
             self.new_random_game ()
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F9)):
             print ("The 'F9' key was pressed")
-            if (self.magnifier == False):
+            if (self.magnifier_group.visible == False):
                 if (self.button_style == None):
                     self.button_style = self.last_button_style
                 self.background_board_group.visible = False
@@ -572,26 +581,21 @@ class Window(pyglet.window.Window):
                 load_and_generate_or_resize_images (self)
                 self.background_board_group.visible = True
                 self.foreground_board_group.visible = True
-                self.window_resize (None)
                 self.redraw ()
-                self.mag_sprite_bg = pyglet.sprite.Sprite(self.boards[1].tiles[0].spr.image.get_region(0,0,64,64),batch=self.pointer_middle_batch)
+                self.window_resize (None)
+                self.mag_sprite_bg = pyglet.sprite.Sprite(self.boards[1].tiles[0].spr.image.get_region(0,0,64,64),batch=self.magnifier_bottom_batch,group=self.magnifier_group)
                 self.mag_sprite_bg.update(scale=8, x=256, y=256)
-                self.mag_sprite_ll = pyglet.sprite.Sprite(self.boards[0].tiles[0].spr.image.get_region(0,0,32,32),batch=self.pointer_top_batch)
+                self.mag_sprite_ll = pyglet.sprite.Sprite(self.boards[0].tiles[0].spr.image.get_region(0,0,32,32),batch=self.magnifier_top_batch,group=self.magnifier_group)
                 self.mag_sprite_ll.update(scale=8, x=256, y=256)
-                self.mag_sprite_lr = pyglet.sprite.Sprite(self.boards[0].tiles[0].spr.image.get_region(1024-32,0,32,32),batch=self.pointer_top_batch)
+                self.mag_sprite_lr = pyglet.sprite.Sprite(self.boards[0].tiles[0].spr.image.get_region(1024-32,0,32,32),batch=self.magnifier_top_batch,group=self.magnifier_group)
                 self.mag_sprite_lr.update(scale=8, x=512, y=256)
-                self.mag_sprite_ul = pyglet.sprite.Sprite(self.boards[0].tiles[0].spr.image.get_region(0,1024-32,32,32),batch=self.pointer_top_batch)
+                self.mag_sprite_ul = pyglet.sprite.Sprite(self.boards[0].tiles[0].spr.image.get_region(0,1024-32,32,32),batch=self.magnifier_top_batch,group=self.magnifier_group)
                 self.mag_sprite_ul.update(scale=8, x=256, y=512)
-                self.mag_sprite_ur = pyglet.sprite.Sprite(self.boards[0].tiles[0].spr.image.get_region(1024-32,1024-32,32,32),batch=self.pointer_top_batch)
+                self.mag_sprite_ur = pyglet.sprite.Sprite(self.boards[0].tiles[0].spr.image.get_region(1024-32,1024-32,32,32),batch=self.magnifier_top_batch,group=self.magnifier_group)
                 self.mag_sprite_ur.update(scale=8, x=512, y=512)
-                self.magnifier = True
+                self.magnifier_group.visible = True
             else:
-                self.mag_sprite_bg.visible = False
-                self.mag_sprite_ll.visible = False
-                self.mag_sprite_lr.visible = False
-                self.mag_sprite_ul.visible = False
-                self.mag_sprite_ur.visible = False
-                self.magnifier = False
+                self.magnifier_group.visible = False
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.F10)):
             print ("The 'F10' key was pressed")
             CheckBoard (self)
@@ -616,16 +620,16 @@ class Window(pyglet.window.Window):
                 self.pix_index += 1
                 self.img_pix = self.pix_list[self.pix_index]
                 load_and_generate_or_resize_images (self)
-                self.window_resize (None)
                 self.redraw ()
+                self.window_resize (None)
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.NUM_SUBTRACT)):
             print ("The 'NUM_SUBTRACT' key was pressed")
             if (self.pix_index > 0):
                 self.pix_index -= 1
                 self.img_pix = self.pix_list[self.pix_index]
                 load_and_generate_or_resize_images (self)
-                self.window_resize (None)
                 self.redraw ()
+                self.window_resize (None)
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.P)):
             print (self.boards[self.show_board])
         elif ((self.show_board in [0,1]) and (symbol == pyglet.window.key.B)):
@@ -633,8 +637,8 @@ class Window(pyglet.window.Window):
                 self.button_style = (self.button_style + 1) % 4
                 self.last_button_style = self.button_style
                 load_and_generate_or_resize_images (self)
-                self.window_resize (None)
                 self.redraw ()
+                self.window_resize (None)
             else:
                 print ("The Button Style is from a loaded image")
         else:

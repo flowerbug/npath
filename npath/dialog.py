@@ -100,12 +100,12 @@ def Load_NPATH_Version_1 (self, lines_in):
     #print(lines_in[3])
     print ("Length self.boards : ", len(self.boards))
     if (len(self.boards) != 0):
-        for x in len(self.boards):
+        for x in range(len(self.boards)):
             self.boards[x].delete()
         del self.boards
         self.boards = []
     self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[2], self.over_batch, self.foreground_board_group))
-    self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, False, lines_in[3], self.under_batch, self.background_board_group))
+    self.boards.append(Board(self, self.game_rows, self.game_cols, self.img_pix, self.img_pix, True, lines_in[3], self.under_batch, self.background_board_group))
     #print ("Load_NPATH_Version_1 -> new values for : R C NB NM", self.game_rows, self.game_cols, self.boards[0], self.boards[1])
 
 
